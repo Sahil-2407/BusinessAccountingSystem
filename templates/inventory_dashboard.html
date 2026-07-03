@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Inventory Dashboard</h2>
+
+<hr>
+
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+                <h5>Total Products</h5>
+                <h2>{{ total_products }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+                <h5>Categories</h5>
+                <h2>{{ total_categories }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+                <h5>Low Stock</h5>
+                <h2>{{ low_stock }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow text-center">
+            <div class="card-body">
+                <h5>Inventory Value</h5>
+                <h2>₹ {{ inventory_value }}</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<hr>
+
+<h3>Products</h3>
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Name</th>
+
+<th>Category</th>
+
+<th>SKU</th>
+
+<th>Stock</th>
+
+<th>Purchase Price</th>
+
+<th>Selling Price</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for product in products %}
+
+<tr>
+
+<td>{{ product.name }}</td>
+
+<td>{{ product.category }}</td>
+
+<td>{{ product.sku }}</td>
+
+<td>
+
+{% if product.stock_quantity <= product.minimum_stock %}
+
+<span class="badge bg-danger">
+
+{{ product.stock_quantity }}
+
+</span>
+
+{% else %}
+
+<span class="badge bg-success">
+
+{{ product.stock_quantity }}
+
+</span>
+
+{% endif %}
+
+</td>
+
+<td>₹ {{ product.purchase_price }}</td>
+
+<td>₹ {{ product.selling_price }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="6" class="text-center">
+
+No Products Available
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}
