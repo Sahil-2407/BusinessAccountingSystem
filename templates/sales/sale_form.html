@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h2>Create Sales Invoice</h2>
+
+<hr>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<div class="row">
+
+<div class="col-md-3">
+
+<label>Customer</label>
+
+<select class="form-select">
+
+{% for customer in customers %}
+
+<option>
+
+{{ customer.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Invoice Number</label>
+
+<input
+type="text"
+class="form-control">
+
+</div>
+
+<div class="col-md-3">
+
+<label>Sale Date</label>
+
+<input
+type="date"
+class="form-control">
+
+</div>
+
+<div class="col-md-3">
+
+<label>Payment Status</label>
+
+<select class="form-select">
+
+<option>Paid</option>
+
+<option>Pending</option>
+
+</select>
+
+</div>
+
+</div>
+
+<hr>
+
+<table class="table table-bordered">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Product</th>
+
+<th>Quantity</th>
+
+<th>Selling Price</th>
+
+<th>Subtotal</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td>
+
+<select class="form-select">
+
+{% for product in products %}
+
+<option>
+
+{{ product.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="form-control qty"
+value="1">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="form-control price">
+
+</td>
+
+<td class="subtotal">
+
+₹0.00
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h3 class="text-end">
+
+Grand Total :
+
+<span id="grandTotal">
+
+₹0.00
+
+</span>
+
+</h3>
+
+<button
+class="btn btn-success">
+
+Save Invoice
+
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+function calculateTotal(){
+
+let qty=document.querySelector(".qty").value;
+
+let price=document.querySelector(".price").value;
+
+let subtotal=(Number(qty)||0)*(Number(price)||0);
+
+document.querySelector(".subtotal").innerHTML="₹"+subtotal.toFixed(2);
+
+document.getElementById("grandTotal").innerHTML="₹"+subtotal.toFixed(2);
+
+}
+
+document.addEventListener("input",function(e){
+
+if(e.target.classList.contains("qty")||
+e.target.classList.contains("price")){
+
+calculateTotal();
+
+}
+
+});
+
+</script>
+{% endblock %}

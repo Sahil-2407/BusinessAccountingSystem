@@ -1,20 +1,36 @@
 from django.urls import path
 from . import views
-from django.urls import path, include
 
 urlpatterns = [
 
-    path('', views.customer_list, name='customer_list'),
-
     path(
-        'add/',
-        views.add_customer,
-        name='add_customer'
+        "",
+        views.customer_list,
+        name="customer_list"
     ),
 
-    path('edit/<int:pk>/', views.edit_customer, name='edit_customer'),
+    path(
+        "add/",
+        views.add_customer,
+        name="add_customer"
+    ),
 
-    path('delete/<int:pk>/', views.delete_customer, name='delete_customer'),
+    path(
+    "view/<int:pk>/",
+    views.view_customer,
+    name="view_customer"
+    ),
+    
+    path(
+        "edit/<int:pk>/",
+        views.edit_customer,
+        name="edit_customer"
+    ),
 
-    path('inventory/', include('inventory.urls')),
+    path(
+        "delete/<int:pk>/",
+        views.delete_customer,
+        name="delete_customer"
+    ),
+
 ]

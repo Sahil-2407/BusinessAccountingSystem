@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+
+<h2>Purchases</h2>
+
+<a href="{% url 'add_purchase' %}"
+class="btn btn-success">
+
+New Purchase
+
+</a>
+
+</div>
+
+<table class="table table-striped">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Invoice</th>
+
+<th>Supplier</th>
+
+<th>Date</th>
+
+<th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for purchase in purchases %}
+
+<tr>
+
+<td>{{ purchase.invoice_number }}</td>
+
+<td>{{ purchase.supplier }}</td>
+
+<td>{{ purchase.purchase_date }}</td>
+
+<td>₹ {{ purchase.total_amount }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="4">
+
+No Purchase Records
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

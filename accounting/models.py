@@ -1,0 +1,87 @@
+from django.db import models
+
+
+class Ledger(models.Model):
+
+    date = models.DateField()
+
+    particulars = models.CharField(
+        max_length=200
+    )
+
+    debit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    credit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    balance = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    def __str__(self):
+        return self.particulars
+
+
+class Journal(models.Model):
+
+    date = models.DateField()
+
+    description = models.CharField(
+        max_length=200
+    )
+
+    debit_account = models.CharField(
+        max_length=100
+    )
+
+    credit_account = models.CharField(
+        max_length=100
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    def __str__(self):
+        return self.description
+
+
+class CashBook(models.Model):
+
+    date = models.DateField()
+
+    receipt = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    payment = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    balance = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    remarks = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    def __str__(self):
+        return str(self.date)

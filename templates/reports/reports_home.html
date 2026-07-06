@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Business Reports</h2>
+
+<hr>
+
+<div class="row">
+
+<div class="col-md-3">
+
+<div class="card bg-primary text-white">
+
+<div class="card-body">
+
+<h5>Total Sales</h5>
+
+<h3>₹ {{ total_sales }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-success text-white">
+
+<div class="card-body">
+
+<h5>Total Purchases</h5>
+
+<h3>₹ {{ total_purchases }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-warning">
+
+<div class="card-body">
+
+<h5>Total Expenses</h5>
+
+<h3>₹ {{ total_expenses }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-danger text-white">
+
+<div class="card-body">
+
+<h5>Estimated Profit</h5>
+
+<h3>₹ {{ profit }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<hr>
+
+<h4>Sales Records</h4>
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Invoice</th>
+
+<th>Date</th>
+
+<th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for sale in sales %}
+
+<tr>
+
+<td>{{ sale.invoice_number }}</td>
+
+<td>{{ sale.sale_date }}</td>
+
+<td>₹ {{ sale.total_amount }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="3">No Sales Found</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

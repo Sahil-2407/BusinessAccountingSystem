@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+
+    <h2>Suppliers</h2>
+
+    <a href="{% url 'add_supplier' %}"
+       class="btn btn-success">
+
+        Add Supplier
+
+    </a>
+
+</div>
+
+<form method="GET" class="row mb-3">
+
+    <div class="col-md-5">
+
+        <input
+            type="text"
+            name="q"
+            class="form-control"
+            placeholder="Search Supplier">
+
+    </div>
+
+    <div class="col-md-2">
+
+        <button class="btn btn-primary">
+
+            Search
+
+        </button>
+
+    </div>
+
+</form>
+
+<table class="table table-hover table-bordered">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Company</th>
+
+<th>Contact Person</th>
+
+<th>GST Number</th>
+
+<th>Email</th>
+
+<th>Phone</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for supplier in suppliers %}
+
+<tr>
+
+<td>{{ supplier.company_name }}</td>
+
+<td>{{ supplier.contact_person }}</td>
+
+<td>{{ supplier.gst_number }}</td>
+
+<td>{{ supplier.email }}</td>
+
+<td>{{ supplier.phone }}</td>
+
+<td>
+
+<a href="{% url 'edit_supplier' supplier.id %}"
+class="btn btn-warning btn-sm">
+
+Edit
+
+</a>
+
+<a href="{% url 'delete_supplier' supplier.id %}"
+class="btn btn-danger btn-sm"
+onclick="return confirm('Delete Supplier?')">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="6"
+class="text-center">
+
+No Suppliers Found
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

@@ -5,7 +5,8 @@ urlpatterns = [
 
     path(
         "",
-        views.dashboard,
-        name="dashboard"
+        views.reports_home,
+        name="reports_home"
     ),
+
 ]

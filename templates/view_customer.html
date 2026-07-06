@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="card shadow">
+
+<div class="card-header bg-primary text-white">
+
+<h3>
+
+Customer Details
+
+</h3>
+
+</div>
+
+<div class="card-body">
+
+<table class="table">
+
+<tr>
+
+<th width="200">
+
+Name
+
+</th>
+
+<td>
+
+{{ customer.name }}
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>
+
+Email
+
+</th>
+
+<td>
+
+{{ customer.email }}
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>
+
+Phone
+
+</th>
+
+<td>
+
+{{ customer.phone }}
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>
+
+Address
+
+</th>
+
+<td>
+
+{{ customer.address }}
+
+</td>
+
+</tr>
+
+</table>
+
+<hr>
+
+<a href="{% url 'customer_list' %}"
+class="btn btn-secondary">
+
+Back
+
+</a>
+
+<a href="{% url 'edit_customer' customer.pk %}"
+class="btn btn-warning">
+
+Edit
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

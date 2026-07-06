@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h2 class="mb-4">
+Business Accounting Dashboard
+</h2>
+
+<div class="row">
+
+<div class="col-md-3 mb-3">
+<div class="card text-white bg-primary">
+<div class="card-body text-center">
+<h5>Customers</h5>
+<h2>{{ customers }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="card text-white bg-success">
+<div class="card-body text-center">
+<h5>Suppliers</h5>
+<h2>{{ suppliers }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="card text-white bg-warning">
+<div class="card-body text-center">
+<h5>Products</h5>
+<h2>{{ products }}</h2>
+</div>
+</div>
+</div>
+
+<div class="col-md-3 mb-3">
+<div class="card text-white bg-danger">
+<div class="card-body text-center">
+<h5>Total Sales</h5>
+<h2>₹ {{ sales }}</h2>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<div class="card mb-4">
+
+<div class="card-header">
+Recent Sales
+</div>
+
+<div class="card-body">
+
+<table class="table table-striped">
+
+<thead>
+
+<tr>
+<th>Invoice</th>
+<th>Total</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for sale in recent_sales %}
+
+<tr>
+
+<td>{{ sale.invoice_number }}</td>
+
+<td>₹ {{ sale.total_amount }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="2">
+No Sales Found
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="card mb-4">
+
+<div class="card-header">
+Recent Purchases
+</div>
+
+<div class="card-body">
+
+<table class="table table-striped">
+
+<thead>
+
+<tr>
+<th>Invoice</th>
+<th>Total</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for purchase in recent_purchases %}
+
+<tr>
+
+<td>{{ purchase.invoice_number }}</td>
+
+<td>₹ {{ purchase.total_amount }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="2">
+No Purchases Found
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card mb-4">
+
+<div class="card-header bg-primary text-white">
+
+Monthly Sales vs Purchases
+
+</div>
+
+<div class="card-body">
+
+<canvas id="salesChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="card-header bg-danger text-white">
+
+Low Stock Products
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Product</th>
+
+<th>Stock</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for product in low_stock %}
+
+<tr>
+
+<td>{{ product.name }}</td>
+
+<td>{{ product.stock_quantity }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="2">
+
+No Low Stock Products
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const ctx = document.getElementById('salesChart');
+
+new Chart(ctx, {
+
+    type: 'bar',
+
+    data: {
+
+        labels: {{ sales_months|safe }},
+
+        datasets: [
+
+            {
+
+                label: 'Sales',
+
+                data: {{ sales_totals|safe }},
+
+                backgroundColor: '#0d6efd'
+
+            },
+
+            {
+
+                label: 'Purchases',
+
+                data: {{ purchase_totals|safe }},
+
+                backgroundColor: '#198754'
+
+            }
+
+        ]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

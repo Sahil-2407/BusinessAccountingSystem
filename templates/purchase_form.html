@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h2>Purchase Entry</h2>
+
+<hr>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<div class="row">
+
+<div class="col-md-4">
+<label>Supplier</label>
+{{ form.supplier }}
+</div>
+
+<div class="col-md-4">
+<label>Invoice Number</label>
+{{ form.invoice_number }}
+</div>
+
+<div class="col-md-4">
+<label>Purchase Date</label>
+{{ form.purchase_date }}
+</div>
+
+</div>
+
+<br>
+
+<h4>Products</h4>
+
+{{ formset.management_form }}
+
+<table class="table table-bordered" id="productTable">
+
+<thead class="table-dark">
+
+<tr>
+
+<th width="40%">Product</th>
+
+<th width="15%">Qty</th>
+
+<th width="20%">Price</th>
+
+<th width="20%">Subtotal</th>
+
+<th width="5%">Remove</th>
+
+</tr>
+
+</thead>
+
+<tbody id="purchaseBody">
+
+<tr>
+
+<td>
+
+<select class="form-select product">
+
+{% for product in products %}
+
+<option value="{{ product.id }}">
+
+{{ product.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="form-control qty"
+value="1"
+min="1">
+
+</td>
+
+<td>
+
+<input
+type="number"
+class="form-control price"
+step="0.01">
+
+</td>
+
+<td class="subtotal">
+
+₹0.00
+
+</td>
+
+<td>
+
+<button
+type="button"
+class="btn btn-danger removeRow">
+
+X
+
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<button
+type="button"
+id="addRow"
+class="btn btn-primary">
+
++ Add Product
+
+</button>
+
+<hr>
+
+<h3 class="text-end">
+
+Grand Total :
+
+<span id="grandTotal">
+
+₹0
+
+</span>
+
+</h3>
+
+<button
+class="btn btn-success">
+
+Save Purchase
+
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+function calculateTotals() {
+
+    let grandTotal = 0;
+
+    const rows = document.querySelectorAll("#productTable tbody tr");
+
+    rows.forEach(function(row){
+
+        const qty = row.querySelector("input[name$='quantity']").value;
+
+        const price = row.querySelector("input[name$='purchase_price']").value;
+
+        const subtotalCell = row.querySelector(".subtotal");
+
+        const subtotal = (Number(qty) || 0) * (Number(price) || 0);
+
+        subtotalCell.innerHTML = "₹" + subtotal.toFixed(2);
+
+        grandTotal += subtotal;
+
+    });
+
+    document.getElementById("grandTotal").innerHTML =
+        "₹" + grandTotal.toFixed(2);
+
+}
+
+document.addEventListener("input", function(e){
+
+    if(e.target.name.includes("quantity") ||
+       e.target.name.includes("purchase_price")){
+
+        calculateTotals();
+
+    }
+
+});
+
+calculateTotals();
+
+</script>
+{% endblock %}
+
