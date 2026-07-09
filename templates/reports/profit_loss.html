@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<div class="card shadow">
+
+<div class="card-header bg-success text-white">
+
+<h3>Profit & Loss Statement</h3>
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<tr>
+<th>Total Sales</th>
+<td>₹ {{ sales }}</td>
+</tr>
+
+<tr>
+<th>Total Purchases</th>
+<td>₹ {{ purchases }}</td>
+</tr>
+
+<tr>
+<th>Total Expenses</th>
+<td>₹ {{ expenses }}</td>
+</tr>
+
+<tr class="table-primary">
+
+<th>Net Profit / Loss</th>
+
+<td>
+
+<strong>
+
+₹ {{ profit }}
+
+</strong>
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

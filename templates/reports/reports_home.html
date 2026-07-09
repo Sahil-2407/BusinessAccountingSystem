@@ -2,17 +2,23 @@
 
 {% block content %}
 
-<h2>Business Reports</h2>
+<div class="container-fluid">
 
-<hr>
+<h2 class="mb-4">
+
+Business Reports Dashboard
+
+</h2>
+
+<!-- Summary Cards -->
 
 <div class="row">
 
-<div class="col-md-3">
+<div class="col-md-3 mb-3">
 
-<div class="card bg-primary text-white">
+<div class="card bg-primary text-white shadow">
 
-<div class="card-body">
+<div class="card-body text-center">
 
 <h5>Total Sales</h5>
 
@@ -24,11 +30,11 @@
 
 </div>
 
-<div class="col-md-3">
+<div class="col-md-3 mb-3">
 
-<div class="card bg-success text-white">
+<div class="card bg-success text-white shadow">
 
-<div class="card-body">
+<div class="card-body text-center">
 
 <h5>Total Purchases</h5>
 
@@ -40,11 +46,11 @@
 
 </div>
 
-<div class="col-md-3">
+<div class="col-md-3 mb-3">
 
-<div class="card bg-warning">
+<div class="card bg-warning shadow">
 
-<div class="card-body">
+<div class="card-body text-center">
 
 <h5>Total Expenses</h5>
 
@@ -56,11 +62,11 @@
 
 </div>
 
-<div class="col-md-3">
+<div class="col-md-3 mb-3">
 
-<div class="card bg-danger text-white">
+<div class="card bg-danger text-white shadow">
 
-<div class="card-body">
+<div class="card-body text-center">
 
 <h5>Estimated Profit</h5>
 
@@ -76,11 +82,209 @@
 
 <hr>
 
-<h4>Sales Records</h4>
+<h3 class="mb-4">
 
-<table class="table table-bordered">
+Reports
 
-<thead>
+</h3>
+
+<div class="row">
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Sales Report</h5>
+
+<p>View all sales transactions.</p>
+
+<a href="{% url 'sale_list' %}" class="btn btn-primary">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Purchase Report</h5>
+
+<p>View all purchase records.</p>
+
+<a href="{% url 'purchase_list' %}" class="btn btn-success">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Expense Report</h5>
+
+<p>View all business expenses.</p>
+
+<a href="{% url 'expense_list' %}" class="btn btn-danger">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Profit & Loss</h5>
+
+<p>Business profit analysis.</p>
+
+<a href="{% url 'profit_loss' %}" class="btn btn-warning">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Trial Balance</h5>
+
+<p>View debit and credit summary.</p>
+
+<a href="{% url 'trial_balance' %}"
+class="btn btn-info">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Balance Sheet</h5>
+
+<p>Assets and liabilities report.</p>
+<a href="{% url 'balance_sheet' %}" class="btn btn-secondary">
+Open
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Stock Report</h5>
+
+<p>Current inventory stock.</p>
+
+<a href="/inventory/" class="btn btn-dark">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3 mb-4">
+
+<div class="card shadow h-100">
+
+<div class="card-body text-center">
+
+<h5>Low Stock Report</h5>
+
+<p>Products that need restocking.</p>
+
+<a href="/" class="btn btn-outline-danger">
+
+Open
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<hr>
+
+<h3 class="mb-3">
+
+Recent Sales
+
+</h3>
+
+<div class="card shadow">
+
+<div class="card-body">
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-dark">
 
 <tr>
 
@@ -112,7 +316,11 @@
 
 <tr>
 
-<td colspan="3">No Sales Found</td>
+<td colspan="3" class="text-center">
+
+No Sales Found
+
+</td>
 
 </tr>
 
@@ -121,5 +329,11 @@
 </tbody>
 
 </table>
+
+</div>
+
+</div>
+
+</div>
 
 {% endblock %}

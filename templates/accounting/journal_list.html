@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Journal</h2>
+
+<a href="{% url 'add_journal' %}" class="btn btn-success mb-3">
+
+Add Journal Entry
+
+</a>
+
+<table class="table table-bordered">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Date</th>
+<th>Description</th>
+<th>Debit</th>
+<th>Credit</th>
+<th>Amount</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in journals %}
+
+<tr>
+
+<td>{{ item.date }}</td>
+<td>{{ item.description }}</td>
+<td>{{ item.debit_account }}</td>
+<td>{{ item.credit_account }}</td>
+<td>{{ item.amount }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="5">No Journal Entries</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

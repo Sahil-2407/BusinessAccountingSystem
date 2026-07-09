@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Ledger</h2>
+
+<a href="{% url 'add_ledger' %}" class="btn btn-success mb-3">
+Add Ledger Entry
+</a>
+
+<table class="table table-bordered">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Date</th>
+<th>Particulars</th>
+<th>Debit</th>
+<th>Credit</th>
+<th>Balance</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in ledger %}
+
+<tr>
+
+<td>{{ item.date }}</td>
+<td>{{ item.particulars }}</td>
+<td>{{ item.debit }}</td>
+<td>{{ item.credit }}</td>
+<td>{{ item.balance }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="5">No Ledger Entries</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endblock %}

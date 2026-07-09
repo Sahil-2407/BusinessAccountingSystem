@@ -14,4 +14,29 @@ urlpatterns = [
         views.add_sale,
         name="add_sale"
     ),
+
+    path(
+        "view/<int:pk>/",
+        views.view_sale,
+        name="view_sale"
+    ),
+
+    path(
+        "invoice/<int:pk>/",
+        views.sale_invoice,
+        name="sale_invoice"
+    ),
+
+    path(
+        "delete/<int:pk>/",
+        views.delete_sale,
+        name="delete_sale"
+    ),
+
+    path(
+        "edit/<int:pk>/",
+        views.edit_sale,
+        name="edit_sale"
+    ),
+
 ]

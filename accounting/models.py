@@ -27,6 +27,12 @@ class Ledger(models.Model):
         default=0
     )
 
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         return self.particulars
 
@@ -52,6 +58,11 @@ class Journal(models.Model):
         decimal_places=2
     )
 
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
     def __str__(self):
         return self.description
 
@@ -83,5 +94,10 @@ class CashBook(models.Model):
         blank=True
     )
 
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
     def __str__(self):
         return str(self.date)

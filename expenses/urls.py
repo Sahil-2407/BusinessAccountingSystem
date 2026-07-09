@@ -15,4 +15,16 @@ urlpatterns = [
         name="add_expense"
     ),
 
+    path(
+        "edit/<int:pk>/",
+        views.edit_expense,
+        name="edit_expense"
+    ),
+
+    path(
+        "delete/<int:pk>/",
+        views.delete_expense,
+        name="delete_expense"
+    ),
+
 ]

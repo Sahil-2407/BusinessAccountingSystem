@@ -3,25 +3,17 @@ from django.db import models
 
 class Expense(models.Model):
 
-    CATEGORY_CHOICES = (
-
+    CATEGORY_CHOICES = [
         ("Rent", "Rent"),
-
         ("Electricity", "Electricity"),
-
         ("Internet", "Internet"),
-
         ("Salary", "Salary"),
-
         ("Transport", "Transport"),
-
-        ("Marketing", "Marketing"),
-
-        ("Maintenance", "Maintenance"),
-
+        ("Office", "Office"),
         ("Other", "Other"),
+    ]
 
-    )
+    title = models.CharField(max_length=200)
 
     category = models.CharField(
         max_length=50,
@@ -35,7 +27,7 @@ class Expense(models.Model):
 
     expense_date = models.DateField()
 
-    description = models.TextField(
+    remarks = models.TextField(
         blank=True,
         null=True
     )
@@ -45,4 +37,4 @@ class Expense(models.Model):
     )
 
     def __str__(self):
-        return f"{self.category} - ₹{self.amount}"
+        return self.title

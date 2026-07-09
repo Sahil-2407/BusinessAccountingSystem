@@ -41,6 +41,9 @@ urlpatterns = [
     path(
     "reports/",
     include("reports.urls")),
+    path(
+    "accounting/",
+    include("accounting.urls")),
 ]
 
 if settings.DEBUG:

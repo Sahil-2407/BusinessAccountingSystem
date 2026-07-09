@@ -8,14 +8,46 @@ class ExpenseForm(forms.ModelForm):
 
         model = Expense
 
-        fields = "__all__"
+        fields = [
+            "title",
+            "category",
+            "amount",
+            "expense_date",
+            "remarks",
+        ]
 
         widgets = {
 
             "expense_date": forms.DateInput(
                 attrs={
-                    "type": "date"
+                    "type": "date",
+                    "class": "form-control"
                 }
-            )
+            ),
+
+            "title": forms.TextInput(
+                attrs={
+                    "class": "form-control"
+                }
+            ),
+
+            "category": forms.Select(
+                attrs={
+                    "class": "form-select"
+                }
+            ),
+
+            "amount": forms.NumberInput(
+                attrs={
+                    "class": "form-control"
+                }
+            ),
+
+            "remarks": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3
+                }
+            ),
 
         }

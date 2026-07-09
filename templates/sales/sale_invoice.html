@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+<div class="card shadow">
+
+<div class="card-header bg-dark text-white">
+
+<h2>Sales Invoice</h2>
+
+</div>
+
+<div class="card-body">
+
+<h5>Invoice Number : {{ sale.invoice_number }}</h5>
+
+<h5>Customer : {{ sale.customer.name }}</h5>
+
+<h5>Date : {{ sale.sale_date }}</h5>
+
+<h5>Payment : {{ sale.payment_status }}</h5>
+
+<hr>
+
+<table class="table table-bordered">
+
+<thead class="table-primary">
+
+<tr>
+
+<th>Product</th>
+<th>Quantity</th>
+<th>Price</th>
+<th>Subtotal</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in items %}
+
+<tr>
+
+<td>{{ item.product.name }}</td>
+
+<td>{{ item.quantity }}</td>
+
+<td>₹ {{ item.selling_price }}</td>
+
+<td>₹ {{ item.subtotal }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+<h3 class="text-end">
+
+Grand Total :
+
+₹ {{ sale.total_amount }}
+
+</h3>
+
+<div class="mt-4">
+
+<button
+class="btn btn-primary"
+onclick="window.print()">
+
+Print Invoice
+
+</button>
+
+<a href="{% url 'sale_list' %}"
+class="btn btn-secondary">
+
+Back
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
