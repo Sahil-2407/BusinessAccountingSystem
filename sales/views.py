@@ -9,7 +9,13 @@ from accounting.models import Journal
 from accounting.models import CashBook
 from django.shortcuts import get_object_or_404
 from .models import Sale, SaleItem
+from django.http import HttpResponse
 
+from reportlab.pdfgen import canvas
+
+from reportlab.lib.units import inch
+
+from reportlab.lib.colors import black
 
 def sale_list(request):
 
@@ -42,6 +48,141 @@ def sale_invoice(request, pk):
             "items": items,
         }
     )
+
+def sale_invoice_pdf(request, pk):
+
+    sale = get_object_or_404(
+        Sale,
+        pk=pk
+    )
+
+    items = SaleItem.objects.filter(
+        sale=sale
+    )
+
+    response = HttpResponse(
+        content_type="application/pdf"
+    )
+
+    response["Content-Disposition"] = (
+        f'attachment; filename="Invoice_{sale.invoice_number}.pdf"'
+    )
+
+    pdf = canvas.Canvas(response)
+
+    y = 800
+
+    pdf.setFont("Helvetica-Bold", 18)
+
+    pdf.drawString(
+        180,
+        y,
+        "Business Accounting ERP"
+    )
+
+    y -= 40
+
+    pdf.setFont("Helvetica", 12)
+
+    pdf.drawString(
+        50,
+        y,
+        f"Invoice : {sale.invoice_number}"
+    )
+
+    y -= 20
+
+    pdf.drawString(
+        50,
+        y,
+        f"Customer : {sale.customer.name}"
+    )
+
+    y -= 20
+
+    pdf.drawString(
+        50,
+        y,
+        f"Date : {sale.sale_date}"
+    )
+
+    y -= 40
+
+    pdf.setFont("Helvetica-Bold", 12)
+
+    pdf.drawString(50, y, "Product")
+
+    pdf.drawString(250, y, "Qty")
+
+    pdf.drawString(330, y, "Price")
+
+    pdf.drawString(430, y, "Subtotal")
+
+    y -= 20
+
+    pdf.line(50, y, 550, y)
+
+    y -= 20
+
+    pdf.setFont("Helvetica", 11)
+
+    for item in items:
+
+        pdf.drawString(
+            50,
+            y,
+            item.product.name
+        )
+
+        pdf.drawString(
+            250,
+            y,
+            str(item.quantity)
+        )
+
+        pdf.drawString(
+            330,
+            y,
+            f"{item.selling_price}"
+        )
+
+        pdf.drawString(
+            430,
+            y,
+            f"{item.subtotal}"
+        )
+
+        y -= 20
+
+    y -= 20
+
+    pdf.line(50, y, 550, y)
+
+    y -= 30
+
+    pdf.setFont("Helvetica-Bold", 14)
+
+    pdf.drawString(
+        320,
+        y,
+        f"Grand Total : ₹ {sale.total_amount}"
+    )
+
+    y -= 50
+
+    pdf.setFont("Helvetica", 12)
+
+    pdf.drawString(
+        50,
+        y,
+        "Authorized Signature"
+    )
+
+    pdf.showPage()
+
+    pdf.save()
+
+    return response
 
 def view_sale(request, pk):
 

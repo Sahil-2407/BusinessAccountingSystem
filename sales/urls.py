@@ -39,4 +39,10 @@ urlpatterns = [
         name="edit_sale"
     ),
 
+    path(
+        "invoice/<int:pk>/pdf/",
+        views.sale_invoice_pdf,
+        name="sale_invoice_pdf"
+    ),
+
 ]

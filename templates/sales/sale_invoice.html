@@ -2,37 +2,108 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container mt-4">
 
 <div class="card shadow">
 
-<div class="card-header bg-dark text-white">
+<div class="card-header bg-primary text-white">
 
-<h2>Sales Invoice</h2>
+<div class="d-flex justify-content-between">
+
+<h3>Sales Invoice</h3>
+
+<span>Invoice #{{ sale.invoice_number }}</span>
+
+</div>
 
 </div>
 
 <div class="card-body">
 
-<h5>Invoice Number : {{ sale.invoice_number }}</h5>
+<div class="row mb-4">
 
-<h5>Customer : {{ sale.customer.name }}</h5>
+<div class="col-md-6">
 
-<h5>Date : {{ sale.sale_date }}</h5>
+<h4>Business Accounting ERP</h4>
 
-<h5>Payment : {{ sale.payment_status }}</h5>
+<p>
+
+123 Business Street<br>
+Bangalore, India<br>
+Phone: +91-9876543210
+
+</p>
+
+</div>
+
+<div class="col-md-6 text-end">
+
+<h5>Customer Details</h5>
+
+<strong>{{ sale.customer.name }}</strong><br>
+
+{{ sale.customer.address }}<br>
+
+{{ sale.customer.phone }}<br>
+
+{{ sale.customer.email }}
+
+</div>
+
+</div>
 
 <hr>
 
+<div class="row mb-3">
+
+<div class="col-md-6">
+
+<strong>Date :</strong>
+
+{{ sale.sale_date }}
+
+</div>
+
+<div class="col-md-6 text-end">
+
+<strong>Status :</strong>
+
+{% if sale.payment_status == "Paid" %}
+
+<span class="badge bg-success">
+
+Paid
+
+</span>
+
+{% else %}
+
+<span class="badge bg-warning">
+
+Pending
+
+</span>
+
+{% endif %}
+
+</div>
+
+</div>
+
 <table class="table table-bordered">
 
-<thead class="table-primary">
+<thead class="table-dark">
 
 <tr>
 
+<th>#</th>
+
 <th>Product</th>
+
 <th>Quantity</th>
+
 <th>Price</th>
+
 <th>Subtotal</th>
 
 </tr>
@@ -44,6 +115,8 @@
 {% for item in items %}
 
 <tr>
+
+<td>{{ forloop.counter }}</td>
 
 <td>{{ item.product.name }}</td>
 
@@ -59,25 +132,68 @@
 
 </tbody>
 
-</table>
+<tfoot>
 
-<h3 class="text-end">
+<tr>
 
-Grand Total :
+<th colspan="4" class="text-end">
+
+Grand Total
+
+</th>
+
+<th>
 
 ₹ {{ sale.total_amount }}
 
-</h3>
+</th>
 
-<div class="mt-4">
+</tr>
+
+</tfoot>
+
+</table>
+
+<div class="row mt-5">
+
+<div class="col-md-6">
+
+<p>
+
+Thank you for your business!
+
+</p>
+
+</div>
+
+<div class="col-md-6 text-end">
+
+_____________________<br>
+
+Authorized Signature
+
+</div>
+
+</div>
+
+<hr>
+
+<div class="text-center">
 
 <button
-class="btn btn-primary"
-onclick="window.print()">
+onclick="window.print()"
+class="btn btn-primary">
 
 Print Invoice
 
 </button>
+
+<a href="{% url 'sale_invoice_pdf' sale.pk %}"
+class="btn btn-danger">
+
+Download PDF
+
+</a>
 
 <a href="{% url 'sale_list' %}"
 class="btn btn-secondary">
