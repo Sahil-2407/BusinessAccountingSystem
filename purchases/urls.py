@@ -16,4 +16,10 @@ urlpatterns = [
         name="add_purchase"
     ),
 
+    path(
+        "edit/<int:pk>/",
+        views.edit_purchase,
+        name="edit_purchase"
+    ),
+
 ]

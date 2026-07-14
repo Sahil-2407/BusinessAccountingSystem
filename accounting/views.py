@@ -18,6 +18,12 @@ def ledger_list(request):
         }
     )
 
+def accounting_dashboard(request):
+
+    return render(
+        request,
+        "accounting/accounting_dashboard.html"
+    )
 
 def add_ledger(request):
 

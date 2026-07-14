@@ -156,28 +156,10 @@
         Suppliers
     </a>
 
-    <a href="/inventory/products/">
-        <i class="bi bi-box-seam"></i>
-        Products
-    </a>
-
     <a href="/inventory/">
-
-Dashboard
-
-</a>
-
-<a href="/inventory/categories/">
-
-Categories
-
-</a>
-
-<a href="/inventory/products/">
-
-Products
-
-</a>
+        <i class="bi bi-box-seam"></i>
+        Inventory
+    </a>
 
     <a href="/purchases/">
         <i class="bi bi-cart-plus"></i>
@@ -254,6 +236,27 @@ Products
 <nav class="navbar navbar-dark bg-dark">
 
     <div class="container">
+
+        {% if messages %}
+
+{% for message in messages %}
+
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3">
+
+{{ message }}
+
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="alert">
+
+</button>
+
+</div>
+
+{% endfor %}
+
+{% endif %}
 
         <a class="navbar-brand" href="/">
             Business Accounting System

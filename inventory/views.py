@@ -37,7 +37,7 @@ def inventory_dashboard(request):
 
     return render(
         request,
-        "inventory_dashboard.html",
+        "inventory/inventory_dashboard.html",
         context,
     )
 

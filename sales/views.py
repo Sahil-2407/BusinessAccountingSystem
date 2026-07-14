@@ -1,54 +1,101 @@
-from django.shortcuts import render, redirect
-from customers.models import Customer
-from inventory.models import Product
-from .models import Sale, SaleItem
-from .forms import SaleForm, SaleItemFormSet
 from decimal import Decimal
-from accounting.models import Ledger
-from accounting.models import Journal
-from accounting.models import CashBook
-from django.shortcuts import get_object_or_404
-from .models import Sale, SaleItem
+
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 
 from reportlab.pdfgen import canvas
 
-from reportlab.lib.units import inch
+from accounting.models import CashBook, Journal, Ledger
+from .forms import SaleForm, SaleItemFormSet
+from .models import Sale, SaleItem
+from .services import (
+    restore_stock,
+    reduce_stock,
+    calculate_total,
+    create_accounting_entries,
+    update_accounting_entries,
+    delete_accounting_entries,
+)
 
-from reportlab.lib.colors import black
 
 def sale_list(request):
 
-    sales = Sale.objects.all().order_by("-sale_date")
+    query = request.GET.get("q", "")
 
-    return render(
-        request,
-        "sales/sale_list.html",
-        {
-            "sales": sales
-        }
+    sales = Sale.objects.select_related(
+        "customer"
     )
 
+    if query:
+
+        sales = sales.filter(
+
+            Q(invoice_number__icontains=query)
+
+            |
+
+            Q(customer__name__icontains=query)
+
+        )
+
+    sales = sales.order_by("-sale_date")
+
+    paginator = Paginator(
+        sales,
+        10
+    )
+
+    page_number = request.GET.get("page")
+
+    sales = paginator.get_page(page_number)
+
+    return render(
+
+        request,
+
+        "sales/sale_list.html",
+
+        {
+
+            "sales": sales,
+
+            "query": query,
+
+        },
+
+    )
 def sale_invoice(request, pk):
 
     sale = get_object_or_404(
-        Sale,
-        pk=pk
+        Sale.objects.select_related("customer"),
+        pk=pk,
     )
 
-    items = SaleItem.objects.filter(
+    items = SaleItem.objects.select_related(
+        "product"
+    ).filter(
         sale=sale
     )
 
     return render(
-        request,
-        "sales/sale_invoice.html",
-        {
-            "sale": sale,
-            "items": items,
-        }
-    )
 
+        request,
+
+        "sales/sale_invoice.html",
+
+        {
+
+            "sale": sale,
+
+            "items": items,
+
+        },
+
+    )
 def sale_invoice_pdf(request, pk):
 
     sale = get_object_or_404(
@@ -187,23 +234,33 @@ def sale_invoice_pdf(request, pk):
 def view_sale(request, pk):
 
     sale = get_object_or_404(
-        Sale,
-        pk=pk
+        Sale.objects.select_related("customer"),
+        pk=pk,
     )
 
-    items = SaleItem.objects.filter(
+    items = SaleItem.objects.select_related(
+        "product"
+    ).filter(
         sale=sale
     )
 
     return render(
+
         request,
+
         "sales/view_sale.html",
+
         {
+
             "sale": sale,
+
             "items": items,
-        }
+
+        },
+
     )
 
+@transaction.atomic
 def delete_sale(request, pk):
 
     sale = get_object_or_404(
@@ -215,7 +272,6 @@ def delete_sale(request, pk):
         sale=sale
     )
 
-    # Restore Stock
     for item in items:
 
         product = item.product
@@ -224,88 +280,75 @@ def delete_sale(request, pk):
 
         product.save()
 
-    # Delete Accounting Entries
-
     Ledger.objects.filter(
-        particulars=f"Sale Invoice {sale.invoice_number}"
+        reference=sale.invoice_number
     ).delete()
 
     Journal.objects.filter(
-        description=f"Sale Invoice {sale.invoice_number}"
+        reference=sale.invoice_number
     ).delete()
 
     CashBook.objects.filter(
-        remarks=f"Sale Invoice {sale.invoice_number}"
+        reference=sale.invoice_number
     ).delete()
-
-    # Delete Sale
 
     sale.delete()
 
+    messages.success(
+        request,
+        "Sale deleted successfully."
+    )
+
     return redirect("sale_list")
 
+@transaction.atomic
 def edit_sale(request, pk):
-
-    print("Method:", request.method)
 
     sale = get_object_or_404(Sale, pk=pk)
 
     if request.method == "POST":
 
         form = SaleForm(request.POST, instance=sale)
-
-        formset = SaleItemFormSet(
-            request.POST,
-            instance=sale
-        )
+        formset = SaleItemFormSet(request.POST, instance=sale)
 
         if form.is_valid() and formset.is_valid():
 
-            print("SUCCESS")
+            # Restore previous stock
+            for old_item in SaleItem.objects.filter(sale=sale):
 
-
-            # Restore old stock
-            old_items = SaleItem.objects.filter(sale=sale)
-
-            for item in old_items:
-
-                product = item.product
-                product.stock_quantity += item.quantity
+                product = old_item.product
+                product.stock_quantity += old_item.quantity
                 product.save()
+
+            # Delete previous SaleItems
+            SaleItem.objects.filter(sale=sale).delete()
+
+            # Save updated sale
+            sale = form.save(commit=False)
 
             total = Decimal("0.00")
 
-            sale = form.save(commit=False)
-            sale.total_amount = 0
-            sale.save()
+            # Save new SaleItems
+            for form_item in formset:
 
-            items = formset.save(commit=False)
+                if not form_item.cleaned_data:
+                    continue
 
-            # Delete removed items
-            for obj in formset.deleted_objects:
-                obj.delete()
+                if form_item.cleaned_data.get("DELETE"):
+                    continue
 
-            # Remove old SaleItems
-            SaleItem.objects.filter(sale=sale).delete()
-
-            for item in items:
+                item = form_item.save(commit=False)
 
                 item.sale = sale
 
-                item.subtotal = (
-                    item.quantity *
-                    item.selling_price
-                )
-
-                total += item.subtotal
-
                 product = item.product
 
+                # Check stock
                 if product.stock_quantity < item.quantity:
 
-                    form.add_error(
-                        None,
-                        f"Not enough stock for {product.name}"
+                    messages.error(
+                        request,
+                        f"Insufficient stock for {product.name}"
                     )
 
                     return render(
@@ -317,47 +360,74 @@ def edit_sale(request, pk):
                         }
                     )
 
+                # Reduce stock
                 product.stock_quantity -= item.quantity
                 product.save()
 
+                # Calculate subtotal
+                item.subtotal = (
+                    item.quantity *
+                    item.selling_price
+                )
+
+                total += item.subtotal
+
                 item.save()
 
+            # Update total
             sale.total_amount = total
             sale.save()
 
-            # Update Accounting
-
+            # Update Ledger
             Ledger.objects.filter(
-                particulars=f"Sale Invoice {sale.invoice_number}"
+                reference=sale.invoice_number
             ).update(
+                date=sale.sale_date,
                 debit=total,
-                balance=total
+                credit=0,
+                balance=total,
+                particulars=f"Sale Invoice {sale.invoice_number}",
             )
 
+            # Update Journal
             Journal.objects.filter(
-                description=f"Sale Invoice {sale.invoice_number}"
+                reference=sale.invoice_number
             ).update(
-                amount=total
+                date=sale.sale_date,
+                amount=total,
+                debit_account="Cash",
+                credit_account="Sales",
+                description=f"Sale Invoice {sale.invoice_number}",
             )
 
+            # Update CashBook
             CashBook.objects.filter(
-                remarks=f"Sale Invoice {sale.invoice_number}"
+                reference=sale.invoice_number
             ).update(
+                date=sale.sale_date,
                 receipt=total,
-                balance=total
+                payment=0,
+                balance=total,
+                remarks=f"Sale Invoice {sale.invoice_number}",
+            )
+
+            messages.success(
+                request,
+                "Sale updated successfully."
             )
 
             return redirect("sale_list")
+
         else:
 
-            print("FORM ERRORS:", form.errors)
-            print("FORMSET ERRORS:", formset.errors)
-            print("NON FORM ERRORS:", formset.non_form_errors())
-    
+            messages.error(
+                request,
+                "Please correct the errors below."
+            )
+
     else:
 
         form = SaleForm(instance=sale)
-
         formset = SaleItemFormSet(instance=sale)
 
     return render(
@@ -370,12 +440,12 @@ def edit_sale(request, pk):
     )
 from decimal import Decimal
 
+@transaction.atomic
 def add_sale(request):
 
     if request.method == "POST":
 
         form = SaleForm(request.POST)
-
         formset = SaleItemFormSet(request.POST)
 
         if form.is_valid() and formset.is_valid():
@@ -384,83 +454,44 @@ def add_sale(request):
             sale.total_amount = Decimal("0.00")
             sale.save()
 
-            formset.instance = sale
-
-            total = Decimal("0.00")
-
             items = formset.save(commit=False)
 
-            for item in items:
+            try:
 
-                item.sale = sale
+                # Validate and reduce stock
+                reduce_stock(items)
 
-                item.subtotal = (
-                    item.quantity *
-                    item.selling_price
+                # Calculate total
+                total = calculate_total(items)
+
+                # Save Sale Items
+                for item in items:
+
+                    item.sale = sale
+                    item.save()
+
+                # Update Sale Total
+                sale.total_amount = total
+                sale.save()
+
+                # Create Accounting Entries
+                create_accounting_entries(sale)
+
+                messages.success(
+                    request,
+                    "Sale created successfully."
                 )
 
-                total += item.subtotal
+                return redirect("sale_list")
 
-                # Reduce Stock
-                product = item.product
+            except ValueError as e:
 
-                if product.stock_quantity < item.quantity:
+                sale.delete()
 
-                    form.add_error(
-                        None,
-                        f"Not enough stock for {product.name}"
-                    )
-
-                    sale.delete()
-
-                    return render(
-                        request,
-                        "sales/sale_form.html",
-                        {
-                            "form": form,
-                            "formset": formset,
-                        }
-                    )
-
-                product.stock_quantity -= item.quantity
-                product.save()
-
-                item.save()
-
-            sale.total_amount = total
-            sale.save()
-
-            # Ledger Entry
-            Ledger.objects.create(
-                date=sale.sale_date,
-                particulars=f"Sale Invoice {sale.invoice_number}",
-                debit=total,
-                credit=0,
-                balance=total,
-                reference=sale.invoice_number
-            )
-
-            # Journal Entry
-            Journal.objects.create(
-                date=sale.sale_date,
-                description=f"Sale Invoice {sale.invoice_number}",
-                debit_account="Cash",
-                credit_account="Sales",
-                amount=total,
-                reference=sale.invoice_number
-            )
-
-            # Cash Book Entry
-            CashBook.objects.create(
-                date=sale.sale_date,
-                receipt=total,
-                payment=0,
-                balance=total,
-                remarks=f"Sale Invoice {sale.invoice_number}",
-                reference=sale.invoice_number
-            )
-
-            return redirect("sale_list")
+                messages.error(
+                    request,
+                    str(e)
+                )
 
     else:
 

@@ -4,119 +4,63 @@
 
 <div class="container mt-4">
 
-<h2>Purchase Entry</h2>
+<div class="card shadow">
 
-<hr>
+<div class="card-header bg-primary text-white">
+
+<h3>New Purchase</h3>
+
+</div>
+
+<div class="card-body">
 
 <form method="POST">
 
 {% csrf_token %}
 
-<div class="row">
+{{ form.as_p }}
 
-<div class="col-md-4">
-<label>Supplier</label>
-{{ form.supplier }}
-</div>
-
-<div class="col-md-4">
-<label>Invoice Number</label>
-{{ form.invoice_number }}
-</div>
-
-<div class="col-md-4">
-<label>Purchase Date</label>
-{{ form.purchase_date }}
-</div>
-
-</div>
-
-<br>
+<hr>
 
 <h4>Products</h4>
 
 {{ formset.management_form }}
 
-<table class="table table-bordered" id="productTable">
+<table class="table table-bordered" id="items-table">
 
-<thead class="table-dark">
+<thead>
 
 <tr>
 
-<th width="40%">Product</th>
-
-<th width="15%">Qty</th>
-
-<th width="20%">Price</th>
-
-<th width="20%">Subtotal</th>
-
-<th width="5%">Remove</th>
+<th>Product</th>
+<th>Quantity</th>
+<th>Purchase Price</th>
+<th>Delete</th>
 
 </tr>
 
 </thead>
 
-<tbody id="purchaseBody">
+<tbody>
 
-<tr>
+{% for item in formset %}
 
-<td>
-
-<select class="form-select product">
-
-{% for product in products %}
-
-<option value="{{ product.id }}">
-
-{{ product.name }}
-
-</option>
-
-{% endfor %}
-
-</select>
-
-</td>
+<tr class="form-row">
 
 <td>
-
-<input
-type="number"
-class="form-control qty"
-value="1"
-min="1">
-
+{{ item.id }}
+{{ item.product }}
 </td>
 
-<td>
+<td>{{ item.quantity }}</td>
 
-<input
-type="number"
-class="form-control price"
-step="0.01">
+<td>{{ item.purchase_price }}</td>
 
-</td>
-
-<td class="subtotal">
-
-₹0.00
-
-</td>
-
-<td>
-
-<button
-type="button"
-class="btn btn-danger removeRow">
-
-X
-
-</button>
-
-</td>
+<td>{{ item.DELETE }}</td>
 
 </tr>
+
+{% endfor %}
 
 </tbody>
 
@@ -124,80 +68,79 @@ X
 
 <button
 type="button"
-id="addRow"
+id="add-row"
 class="btn btn-primary">
 
-+ Add Product
+Add Product
 
 </button>
 
-<hr>
-
-<h3 class="text-end">
-
-Grand Total :
-
-<span id="grandTotal">
-
-₹0
-
-</span>
-
-</h3>
+<br><br>
 
 <button
+type="submit"
 class="btn btn-success">
 
 Save Purchase
 
 </button>
 
+<a href="{% url 'purchase_list' %}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
 </form>
+
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-function calculateTotals() {
+document.getElementById("add-row").addEventListener("click", function () {
 
-    let grandTotal = 0;
+    let totalForms = document.getElementById("id_purchaseitem_set-TOTAL_FORMS");
 
-    const rows = document.querySelectorAll("#productTable tbody tr");
+    let formNum = parseInt(totalForms.value);
 
-    rows.forEach(function(row){
+    let tableBody = document.querySelector("#items-table tbody");
 
-        const qty = row.querySelector("input[name$='quantity']").value;
+    let firstRow = document.querySelector(".form-row");
 
-        const price = row.querySelector("input[name$='purchase_price']").value;
+    let newRow = firstRow.cloneNode(true);
 
-        const subtotalCell = row.querySelector(".subtotal");
+    newRow.innerHTML = newRow.innerHTML.replaceAll(
+        "-0-",
+        "-" + formNum + "-"
+    );
 
-        const subtotal = (Number(qty) || 0) * (Number(price) || 0);
+    newRow.querySelectorAll("input").forEach(function(input){
 
-        subtotalCell.innerHTML = "₹" + subtotal.toFixed(2);
+        if(input.type !== "hidden"){
 
-        grandTotal += subtotal;
+            input.value = "";
+
+        }
 
     });
 
-    document.getElementById("grandTotal").innerHTML =
-        "₹" + grandTotal.toFixed(2);
+    newRow.querySelectorAll("select").forEach(function(select){
 
-}
+        select.selectedIndex = 0;
 
-document.addEventListener("input", function(e){
+    });
 
-    if(e.target.name.includes("quantity") ||
-       e.target.name.includes("purchase_price")){
+    tableBody.appendChild(newRow);
 
-        calculateTotals();
-
-    }
+    totalForms.value = formNum + 1;
 
 });
 
-calculateTotals();
-
 </script>
-{% endblock %}
 
+{% endblock %}

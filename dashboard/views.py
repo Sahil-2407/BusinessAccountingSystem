@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
-
+from expenses.models import Expense
+from inventory.models import Category
 from customers.models import Customer
 from suppliers.models import Supplier
 from inventory.models import Product

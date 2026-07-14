@@ -6,10 +6,8 @@
 
 <div class="card shadow">
 
-<div class="card-header bg-warning">
-
+<div class="card-header bg-warning text-dark">
 <h3>Edit Sale</h3>
-
 </div>
 
 <div class="card-body">
@@ -26,7 +24,7 @@
 
 {{ formset.management_form }}
 
-<table class="table table-bordered">
+<table class="table table-bordered" id="items-table">
 
 <thead>
 
@@ -45,9 +43,12 @@
 
 {% for item in formset %}
 
-<tr>
+<tr class="form-row">
 
-<td>{{ item.product }}</td>
+<td>
+{{ item.id }}
+{{ item.product }}
+</td>
 
 <td>{{ item.quantity }}</td>
 
@@ -63,13 +64,27 @@
 
 </table>
 
-<button class="btn btn-success">
+<button
+type="button"
+class="btn btn-primary mb-3"
+id="add-row">
+
+Add Product
+
+</button>
+
+<br>
+
+<button
+type="submit"
+class="btn btn-success">
 
 Update Sale
 
 </button>
 
-<a href="{% url 'sale_list' %}"
+<a
+href="{% url 'sale_list' %}"
 class="btn btn-secondary">
 
 Cancel
@@ -83,5 +98,48 @@ Cancel
 </div>
 
 </div>
+
+<script>
+
+document.getElementById("add-row").addEventListener("click", function () {
+
+    let totalForms = document.getElementById("id_saleitem_set-TOTAL_FORMS");
+
+    let formNum = parseInt(totalForms.value);
+
+    let tableBody = document.querySelector("#items-table tbody");
+
+    let firstRow = document.querySelector(".form-row");
+
+    let newRow = firstRow.cloneNode(true);
+
+    newRow.innerHTML = newRow.innerHTML.replaceAll(
+        "-0-",
+        "-" + formNum + "-"
+    );
+
+    newRow.querySelectorAll("input").forEach(input => {
+
+        if (input.type !== "hidden") {
+
+            input.value = "";
+
+        }
+
+    });
+
+    newRow.querySelectorAll("select").forEach(select => {
+
+        select.selectedIndex = 0;
+
+    });
+
+    tableBody.appendChild(newRow);
+
+    totalForms.value = formNum + 1;
+
+});
+
+</script>
 
 {% endblock %}
