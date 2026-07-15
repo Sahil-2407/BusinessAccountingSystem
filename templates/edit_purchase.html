@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<div class="card shadow">
+
+<div class="card-header bg-primary text-white">
+
+<h3>Edit Purchase</h3>
+
+</div>
+
+<div class="card-body">
+
+<form method="POST">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<hr>
+
+<h4>Products</h4>
+
+{{ formset.management_form }}
+
+<table class="table table-bordered" id="items-table">
+
+<thead>
+
+<tr>
+
+<th>Product</th>
+<th>Quantity</th>
+<th>Purchase Price</th>
+<th>Delete</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in formset %}
+
+<tr class="form-row">
+
+<td>
+{{ item.id }}
+{{ item.product }}
+</td>
+
+<td>{{ item.quantity }}</td>
+
+<td>{{ item.purchase_price }}</td>
+
+<td>{{ item.DELETE }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+<button
+type="button"
+id="add-row"
+class="btn btn-primary">
+
+Add Product
+
+</button>
+
+<br><br>
+
+<button
+type="submit"
+class="btn btn-success">
+
+Update Purchase
+
+</button>
+
+<a href="{% url 'purchase_list' %}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+document.getElementById("add-row").addEventListener("click", function () {
+
+    let totalForms = document.getElementById("id_purchaseitem_set-TOTAL_FORMS");
+
+    let formNum = parseInt(totalForms.value);
+
+    let tableBody = document.querySelector("#items-table tbody");
+
+    let firstRow = document.querySelector(".form-row");
+
+    let newRow = firstRow.cloneNode(true);
+
+    newRow.innerHTML = newRow.innerHTML.replaceAll(
+        "-0-",
+        "-" + formNum + "-"
+    );
+
+    newRow.querySelectorAll("input").forEach(function(input){
+
+        if(input.type !== "hidden"){
+
+            input.value = "";
+
+        }
+
+    });
+
+    newRow.querySelectorAll("select").forEach(function(select){
+
+        select.selectedIndex = 0;
+
+    });
+
+    tableBody.appendChild(newRow);
+
+    totalForms.value = formNum + 1;
+
+});
+
+</script>
+
+{% endblock %}

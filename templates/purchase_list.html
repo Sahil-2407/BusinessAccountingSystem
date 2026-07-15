@@ -2,172 +2,265 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="container-fluid">
 
-    <h2>
-        <i class="bi bi-cart-plus"></i>
-        Purchases
-    </h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <a href="{% url 'add_purchase' %}"
-       class="btn btn-success">
+        <h2 class="fw-bold">
+            <i class="bi bi-cart-plus"></i>
+            Purchases
+        </h2>
 
-        <i class="bi bi-plus-circle"></i>
+        <a href="{% url 'add_purchase' %}"
+           class="btn btn-success">
 
-        New Purchase
+            <i class="bi bi-plus-circle"></i>
 
-    </a>
+            New Purchase
 
-</div>
+        </a>
 
-{% if messages %}
+    </div>
 
-    {% for message in messages %}
 
-        <div class="alert alert-{{ message.tags }}">
+    <!-- Search -->
 
-            {{ message }}
+    <form method="GET" class="mb-4">
+
+        <div class="input-group">
+
+            <input
+                type="text"
+                name="q"
+                class="form-control"
+                placeholder="Search Invoice or Supplier..."
+                value="{{ query }}">
+
+            <button class="btn btn-primary">
+
+                <i class="bi bi-search"></i>
+
+                Search
+
+            </button>
 
         </div>
 
-    {% endfor %}
+    </form>
 
-{% endif %}
+    <!-- Purchase Table -->
 
-<form method="GET" class="mb-3">
+    <div class="card shadow">
 
-<div class="input-group">
+        <div class="card-header bg-dark text-white">
 
-<input
-type="text"
-name="q"
-class="form-control"
-placeholder="Search Invoice or Supplier..."
-value="{{ query }}">
+            <h5 class="mb-0">
 
-<button class="btn btn-primary">
+                <i class="bi bi-table"></i>
 
-<i class="bi bi-search"></i>
+                Purchase Records
 
-Search
+            </h5>
 
-</button>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-dark">
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Invoice</th>
+
+                    <th>Supplier</th>
+
+                    <th>Date</th>
+
+                    <th class="text-end">Total</th>
+
+                    <th class="text-center">Actions</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for purchase in purchases %}
+
+                <tr>
+
+                    <td>
+
+                        {{ forloop.counter }}
+
+                    </td>
+
+                    <td>
+
+                        <span class="fw-bold text-primary">
+
+                            {{ purchase.invoice_number }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {{ purchase.supplier }}
+
+                    </td>
+
+                    <td>
+
+                        {{ purchase.purchase_date|date:"d M Y" }}
+
+                    </td>
+
+                    <td class="text-end">
+
+                        <span class="fw-bold text-success">
+
+                            ₹ {{ purchase.total_amount }}
+
+                        </span>
+
+                    </td>
+
+                    <td class="text-center">
+
+                        <div class="btn-group">
+
+                            <a
+                                href="{% url 'purchase_invoice' purchase.pk %}"
+                                class="btn btn-info btn-sm"
+                                title="Invoice">
+
+                                <i class="bi bi-receipt"></i>
+
+                            </a>
+
+                            <a
+                                href="{% url 'purchase_invoice_pdf' purchase.pk %}"
+                                class="btn btn-danger btn-sm"
+                                title="Download PDF">
+
+                                <i class="bi bi-file-earmark-pdf"></i>
+
+                            </a>
+
+                            <a
+                                href="{% url 'edit_purchase' purchase.pk %}"
+                                class="btn btn-warning btn-sm"
+                                title="Edit">
+
+                                <i class="bi bi-pencil-square"></i>
+
+                            </a>
+
+                            <a
+                                href="{% url 'delete_purchase' purchase.pk %}"
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Delete this purchase?');"
+                                title="Delete">
+
+                                <i class="bi bi-trash"></i>
+
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="6" class="text-center py-4">
+
+                        <i class="bi bi-cart-x fs-1 text-secondary"></i>
+
+                        <br>
+
+                        No Purchase Records Found
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Pagination -->
+
+    <nav class="mt-4">
+
+        <ul class="pagination justify-content-center">
+
+            {% if purchases.has_previous %}
+
+            <li class="page-item">
+
+                <a
+                    class="page-link"
+                    href="?page={{ purchases.previous_page_number }}&q={{ query }}">
+
+                    Previous
+
+                </a>
+
+            </li>
+
+            {% endif %}
+
+            <li class="page-item active">
+
+                <span class="page-link">
+
+                    Page {{ purchases.number }}
+
+                    of
+
+                    {{ purchases.paginator.num_pages }}
+
+                </span>
+
+            </li>
+
+            {% if purchases.has_next %}
+
+            <li class="page-item">
+
+                <a
+                    class="page-link"
+                    href="?page={{ purchases.next_page_number }}&q={{ query }}">
+
+                    Next
+
+                </a>
+
+            </li>
+
+            {% endif %}
+
+        </ul>
+
+    </nav>
 
 </div>
-
-</form>
-
-<table class="table table-striped table-hover">
-
-<thead class="table-dark">
-
-<tr>
-
-<th>Invoice</th>
-
-<th>Supplier</th>
-
-<th>Date</th>
-
-<th>Total</th>
-
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for purchase in purchases %}
-
-<tr>
-
-<td>{{ purchase.invoice_number }}</td>
-
-<td>{{ purchase.supplier.name }}</td>
-
-<td>{{ purchase.purchase_date }}</td>
-
-<td>₹ {{ purchase.total_amount }}</td>
-
-<td>
-
-<td>
-
-<span class="badge bg-secondary">
-Coming Soon
-</span>
-
-</td>
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-
-<td colspan="5" class="text-center">
-
-No Purchase Records Found
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-<nav>
-
-<ul class="pagination justify-content-center">
-
-{% if purchases.has_previous %}
-
-<li class="page-item">
-
-<a class="page-link"
-href="?page={{ purchases.previous_page_number }}&q={{ query }}">
-
-Previous
-
-</a>
-
-</li>
-
-{% endif %}
-
-<li class="page-item active">
-
-<span class="page-link">
-
-Page {{ purchases.number }} of {{ purchases.paginator.num_pages }}
-
-</span>
-
-</li>
-
-{% if purchases.has_next %}
-
-<li class="page-item">
-
-<a class="page-link"
-href="?page={{ purchases.next_page_number }}&q={{ query }}">
-
-Next
-
-</a>
-
-</li>
-
-{% endif %}
-
-</ul>
-
-</nav>
 
 {% endblock %}
