@@ -12,7 +12,9 @@ def supplier_list(request):
 
     query = request.GET.get("q")
 
-    suppliers = Supplier.objects.all()
+    suppliers = Supplier.objects.filter(
+        owner=request.user
+    )
 
     if query:
         suppliers = suppliers.filter(
@@ -35,7 +37,11 @@ def add_supplier(request):
         form = SupplierForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            supplier = form.save(commit=False)
+
+            supplier.owner = request.user
+
+            supplier.save()
             return redirect("supplier_list")
 
     else:
@@ -55,7 +61,8 @@ def edit_supplier(request, pk):
 
     supplier = get_object_or_404(
         Supplier,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     if request.method == "POST":

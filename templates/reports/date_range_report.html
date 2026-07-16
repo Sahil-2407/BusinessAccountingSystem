@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+<h2 class="mb-4">
+
+Date Range Report
+
+</h2>
+
+<form method="GET">
+
+<div class="row">
+
+<div class="col-md-3">
+
+<label>From Date</label>
+
+<input
+type="date"
+name="from_date"
+value="{{ from_date }}"
+class="form-control">
+
+</div>
+
+<div class="col-md-3">
+
+<label>To Date</label>
+
+<input
+type="date"
+name="to_date"
+value="{{ to_date }}"
+class="form-control">
+
+</div>
+
+<div class="col-md-2 mt-4">
+
+<button class="btn btn-primary w-100">
+
+Generate
+
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+<hr>
+
+<div class="row">
+
+<div class="col-md-3">
+
+<div class="card bg-primary text-white">
+
+<div class="card-body text-center">
+
+<h5>Sales</h5>
+
+<h3>₹ {{ sales }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-success text-white">
+
+<div class="card-body text-center">
+
+<h5>Purchases</h5>
+
+<h3>₹ {{ purchases }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-danger text-white">
+
+<div class="card-body text-center">
+
+<h5>Expenses</h5>
+
+<h3>₹ {{ expenses }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-warning">
+
+<div class="card-body text-center">
+
+<h5>Profit</h5>
+
+<h3>₹ {{ profit }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

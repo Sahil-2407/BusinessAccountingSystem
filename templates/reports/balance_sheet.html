@@ -2,69 +2,132 @@
 
 {% block content %}
 
-<div class="container mt-4">
+<div class="container-fluid">
 
-<div class="card shadow">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-<div class="card-header bg-success text-white">
+<h2>
 
-<h3>Balance Sheet</h3>
+<i class="bi bi-bank"></i>
+
+Balance Sheet
+
+</h2>
+
+<a href="{% url 'reports_home' %}"
+class="btn btn-secondary">
+
+Back
+
+</a>
 
 </div>
-
-<div class="card-body">
 
 <div class="row">
 
 <div class="col-md-6">
 
-<h4>Assets</h4>
+<div class="card shadow">
 
-<table class="table table-bordered">
+<div class="card-header bg-success text-white">
+
+Assets
+
+</div>
+
+<table class="table mb-0">
 
 <tr>
+
 <th>Cash</th>
-<td>₹ {{ cash }}</td>
+
+<td class="text-end">
+
+₹ {{ cash }}
+
+</td>
+
 </tr>
 
 <tr>
+
 <th>Inventory</th>
-<td>₹ {{ inventory }}</td>
+
+<td class="text-end">
+
+₹ {{ inventory }}
+
+</td>
+
 </tr>
 
-<tr class="table-primary">
+<tr class="table-success">
+
 <th>Total Assets</th>
-<td>₹ {{ assets }}</td>
+
+<th class="text-end">
+
+₹ {{ assets }}
+
+</th>
+
 </tr>
 
 </table>
+
+</div>
 
 </div>
 
 <div class="col-md-6">
 
-<h4>Liabilities & Capital</h4>
+<div class="card shadow">
 
-<table class="table table-bordered">
+<div class="card-header bg-danger text-white">
+
+Liabilities & Capital
+
+</div>
+
+<table class="table mb-0">
 
 <tr>
+
 <th>Liabilities</th>
-<td>₹ {{ liabilities }}</td>
+
+<td class="text-end">
+
+₹ {{ liabilities }}
+
+</td>
+
 </tr>
 
 <tr>
+
 <th>Capital</th>
-<td>₹ {{ capital }}</td>
+
+<td class="text-end">
+
+₹ {{ capital }}
+
+</td>
+
 </tr>
 
-<tr class="table-success">
+<tr class="table-danger">
+
 <th>Total</th>
-<td>₹ {{ assets }}</td>
+
+<th class="text-end">
+
+₹ {{ liabilities|add:capital }}
+
+</th>
+
 </tr>
 
 </table>
-
-</div>
 
 </div>
 

@@ -27,4 +27,21 @@ urlpatterns = [
         name="balance_sheet"
     ),
 
+    path(
+        "monthly-report/",
+        views.monthly_report,
+        name="monthly_report"
+    ),
+
+    path(
+        "yearly-report/",
+        views.yearly_report,
+        name="yearly_report"
+    ),
+
+    path(
+        "date-range/",
+        views.date_range_report,
+        name="date_range_report"
+    ),
 ]

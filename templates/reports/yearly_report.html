@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h2 class="mb-4">
+
+<i class="bi bi-calendar3"></i>
+
+Yearly Report
+
+</h2>
+
+<form method="GET">
+
+<div class="row mb-4">
+
+<div class="col-md-3">
+
+<input
+type="number"
+name="year"
+class="form-control"
+placeholder="Enter Year"
+value="{{ year }}">
+
+</div>
+
+<div class="col-md-2">
+
+<button class="btn btn-primary">
+
+Generate
+
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+<div class="row">
+
+<div class="col-md-3">
+
+<div class="card bg-primary text-white shadow">
+
+<div class="card-body text-center">
+
+<h5>Sales</h5>
+
+<h3>₹ {{ sales }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-success text-white shadow">
+
+<div class="card-body text-center">
+
+<h5>Purchases</h5>
+
+<h3>₹ {{ purchases }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-danger text-white shadow">
+
+<div class="card-body text-center">
+
+<h5>Expenses</h5>
+
+<h3>₹ {{ expenses }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-3">
+
+<div class="card bg-warning shadow">
+
+<div class="card-body text-center">
+
+<h5>Profit</h5>
+
+<h3>₹ {{ profit }}</h3>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

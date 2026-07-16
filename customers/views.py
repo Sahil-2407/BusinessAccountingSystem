@@ -8,12 +8,13 @@ from .forms import CustomerForm
 
 
 @login_required
-@login_required
 def customer_list(request):
 
     query = request.GET.get("q", "")
 
-    customers = Customer.objects.all().order_by("id")
+    customers = Customer.objects.filter(
+        owner=request.user
+    )
 
     if query:
         customers = customers.filter(name__icontains=query)
@@ -37,7 +38,11 @@ def customer_list(request):
 @login_required
 def view_customer(request, pk):
 
-    customer = get_object_or_404(Customer, pk=pk)
+    customer = get_object_or_404(
+        Customer,
+        pk=pk,
+        owner=request.user
+    )
 
     return render(
         request,
@@ -55,7 +60,11 @@ def add_customer(request):
 
         if form.is_valid():
 
-            form.save()
+            customer = form.save(commit=False)
+
+            customer.owner = request.user
+
+            customer.save()
 
             messages.success(
                 request,
@@ -82,9 +91,9 @@ def edit_customer(request, pk):
 
     customer = get_object_or_404(
         Customer,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
-
     if request.method == "POST":
 
         form = CustomerForm(
@@ -124,7 +133,8 @@ def delete_customer(request, pk):
 
     customer = get_object_or_404(
         Customer,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     customer.delete()

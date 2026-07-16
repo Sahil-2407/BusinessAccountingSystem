@@ -4,336 +4,413 @@
 
 <div class="container-fluid">
 
-<h2 class="mb-4">
+    <!-- Page Heading -->
 
-Business Reports Dashboard
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-</h2>
+        <h2>
+            <i class="bi bi-bar-chart-line-fill"></i>
+            Financial Reports Dashboard
+        </h2>
 
-<!-- Summary Cards -->
+    </div>
 
-<div class="row">
+    <!-- Summary Cards -->
 
-<div class="col-md-3 mb-3">
+    <div class="row">
 
-<div class="card bg-primary text-white shadow">
+        <div class="col-lg-3 col-md-6 mb-4">
 
-<div class="card-body text-center">
+            <div class="card shadow border-0 bg-primary text-white">
 
-<h5>Total Sales</h5>
+                <div class="card-body text-center">
 
-<h3>₹ {{ total_sales }}</h3>
+                    <i class="bi bi-currency-rupee fs-1"></i>
+
+                    <h5 class="mt-2">
+                        Total Sales
+                    </h5>
+
+                    <h3>
+                        ₹ {{ total_sales }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            <div class="card shadow border-0 bg-success text-white">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-cart-check fs-1"></i>
+
+                    <h5 class="mt-2">
+                        Total Purchases
+                    </h5>
+
+                    <h3>
+                        ₹ {{ total_purchases }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            <div class="card shadow border-0 bg-danger text-white">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-wallet2 fs-1"></i>
+
+                    <h5 class="mt-2">
+                        Total Expenses
+                    </h5>
+
+                    <h3>
+                        ₹ {{ total_expenses }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            {% if profit >= 0 %}
+            <div class="card shadow border-0 bg-warning">
+            {% else %}
+            <div class="card shadow border-0 bg-dark text-white">
+            {% endif %}
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-graph-up-arrow fs-1"></i>
+
+                    <h5 class="mt-2">
+                        Net Profit
+                    </h5>
+
+                    <h3>
+                        ₹ {{ profit }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Reports -->
+
+    <div class="row">
+
+        <!-- Trial Balance -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-journal-text display-4 text-primary"></i>
+
+                    <h4 class="mt-3">
+                        Trial Balance
+                    </h4>
+
+                    <p class="text-muted">
+                        View debit and credit balances.
+                    </p>
+
+                    <a href="{% url 'trial_balance' %}"
+                       class="btn btn-primary">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Profit & Loss -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-graph-up display-4 text-success"></i>
+
+                    <h4 class="mt-3">
+                        Profit & Loss
+                    </h4>
+
+                    <p class="text-muted">
+                        View business profitability.
+                    </p>
+
+                    <a href="{% url 'profit_loss' %}"
+                       class="btn btn-success">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Balance Sheet -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-bank display-4 text-danger"></i>
+
+                    <h4 class="mt-3">
+                        Balance Sheet
+                    </h4>
+
+                    <p class="text-muted">
+                        View assets and liabilities.
+                    </p>
+
+                    <a href="{% url 'balance_sheet' %}"
+                       class="btn btn-danger">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Monthly Report -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-calendar-month display-4 text-warning"></i>
+
+                    <h4 class="mt-3">
+                        Monthly Report
+                    </h4>
+
+                    <p class="text-muted">
+                        Monthly sales, purchases and expenses.
+                    </p>
+
+                    <a href="{% url 'monthly_report' %}"
+                       class="btn btn-warning">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Yearly Report -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-calendar3 display-4 text-info"></i>
+
+                    <h4 class="mt-3">
+                        Yearly Report
+                    </h4>
+
+                    <p class="text-muted">
+                        Year-wise business performance.
+                    </p>
+
+                    <a href="{% url 'yearly_report' %}"
+                       class="btn btn-info">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Date Range Report -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body text-center">
+
+                    <i class="bi bi-calendar-range display-4 text-secondary"></i>
+
+                    <h4 class="mt-3">
+                        Date Range Report
+                    </h4>
+
+                    <p class="text-muted">
+                        Generate reports between any two dates.
+                    </p>
+
+                    <a href="{% url 'date_range_report' %}"
+                       class="btn btn-secondary">
+
+                        Open Report
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Business Performance Chart -->
+
+    <div class="card shadow mt-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-bar-chart-fill"></i>
+
+                Business Performance
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <canvas id="salesChart" height="100"></canvas>
+
+        </div>
+
+    </div>
 
 </div>
 
-</div>
+<!-- Chart.js -->
 
-</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="col-md-3 mb-3">
+<script>
 
-<div class="card bg-success text-white shadow">
+const ctx = document.getElementById("salesChart");
 
-<div class="card-body text-center">
+new Chart(ctx, {
 
-<h5>Total Purchases</h5>
+    type: "bar",
 
-<h3>₹ {{ total_purchases }}</h3>
+    data: {
 
-</div>
+        labels: {{ months|safe }},
 
-</div>
+        datasets: [
 
-</div>
+            {
 
-<div class="col-md-3 mb-3">
+                label: "Sales",
 
-<div class="card bg-warning shadow">
+                data: {{ sales_totals|safe }},
 
-<div class="card-body text-center">
+                backgroundColor: "#0d6efd"
 
-<h5>Total Expenses</h5>
+            },
 
-<h3>₹ {{ total_expenses }}</h3>
+            {
 
-</div>
+                label: "Purchases",
 
-</div>
+                data: {{ purchase_totals|safe }},
 
-</div>
+                backgroundColor: "#198754"
 
-<div class="col-md-3 mb-3">
+            },
 
-<div class="card bg-danger text-white shadow">
+            {
 
-<div class="card-body text-center">
+                label: "Expenses",
 
-<h5>Estimated Profit</h5>
+                data: {{ expense_totals|safe }},
 
-<h3>₹ {{ profit }}</h3>
+                backgroundColor: "#dc3545"
 
-</div>
+            }
 
-</div>
+        ]
 
-</div>
+    },
 
-</div>
+    options: {
 
-<hr>
+        responsive: true,
 
-<h3 class="mb-4">
+        plugins: {
 
-Reports
+            legend: {
 
-</h3>
+                position: "top"
 
-<div class="row">
+            }
 
-<div class="col-md-3 mb-4">
+        },
 
-<div class="card shadow h-100">
+        scales: {
 
-<div class="card-body text-center">
+            y: {
 
-<h5>Sales Report</h5>
+                beginAtZero: true
 
-<p>View all sales transactions.</p>
+            }
 
-<a href="{% url 'sale_list' %}" class="btn btn-primary">
+        }
 
-Open
+    }
 
-</a>
+});
 
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Purchase Report</h5>
-
-<p>View all purchase records.</p>
-
-<a href="{% url 'purchase_list' %}" class="btn btn-success">
-
-Open
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Expense Report</h5>
-
-<p>View all business expenses.</p>
-
-<a href="{% url 'expense_list' %}" class="btn btn-danger">
-
-Open
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Profit & Loss</h5>
-
-<p>Business profit analysis.</p>
-
-<a href="{% url 'profit_loss' %}" class="btn btn-warning">
-
-Open
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="row">
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Trial Balance</h5>
-
-<p>View debit and credit summary.</p>
-
-<a href="{% url 'trial_balance' %}"
-class="btn btn-info">
-
-Open
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Balance Sheet</h5>
-
-<p>Assets and liabilities report.</p>
-<a href="{% url 'balance_sheet' %}" class="btn btn-secondary">
-Open
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Stock Report</h5>
-
-<p>Current inventory stock.</p>
-
-<a href="/inventory/" class="btn btn-dark">
-
-Open
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow h-100">
-
-<div class="card-body text-center">
-
-<h5>Low Stock Report</h5>
-
-<p>Products that need restocking.</p>
-
-<a href="/" class="btn btn-outline-danger">
-
-Open
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<hr>
-
-<h3 class="mb-3">
-
-Recent Sales
-
-</h3>
-
-<div class="card shadow">
-
-<div class="card-body">
-
-<table class="table table-bordered table-hover">
-
-<thead class="table-dark">
-
-<tr>
-
-<th>Invoice</th>
-
-<th>Date</th>
-
-<th>Total</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for sale in sales %}
-
-<tr>
-
-<td>{{ sale.invoice_number }}</td>
-
-<td>{{ sale.sale_date }}</td>
-
-<td>₹ {{ sale.total_amount }}</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-
-<td colspan="3" class="text-center">
-
-No Sales Found
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
+</script>
 
 {% endblock %}
