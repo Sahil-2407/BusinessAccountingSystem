@@ -1,7 +1,13 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Expense(models.Model):
+
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
 
     CATEGORY_CHOICES = [
         ("Rent", "Rent"),

@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
-from expenses.models import Expense
-from inventory.models import Category
+
 from customers.models import Customer
 from suppliers.models import Supplier
 from inventory.models import Product
@@ -13,34 +12,55 @@ from sales.models import Sale
 def dashboard(request):
 
     # Dashboard Counts
-    customers = Customer.objects.count()
-    suppliers = Supplier.objects.count()
-    products = Product.objects.count()
+    customers = Customer.objects.filter(
+        owner=request.user
+    ).count()
+    suppliers = Supplier.objects.filter(
+        owner=request.user
+    ).count()
+    products = Product.objects.filter(
+        owner=request.user
+    ).count()
 
     low_stock_products = Product.objects.filter(
+        owner=request.user,
         stock_quantity__lte=10
     )
 
     # Totals
     total_sales = (
-        Sale.objects.aggregate(total=Sum("total_amount"))["total"] or 0
+        Sale.objects.filter(
+            owner=request.user
+        ).aggregate(
+            total=Sum("total_amount")
+        )["total"] or 0
     )
 
     total_purchases = (
-        Purchase.objects.aggregate(total=Sum("total_amount"))["total"] or 0
+        Purchase.objects.filter(
+            owner=request.user
+        ).aggregate(
+            total=Sum("total_amount")
+        )["total"] or 0
     )
 
     # Recent Records
-    recent_sales = Sale.objects.order_by("-sale_date")[:5]
+    recent_sales = Sale.objects.filter(
+        owner=request.user
+    ).order_by("-sale_date")[:5]
 
-    recent_purchases = Purchase.objects.order_by("-purchase_date")[:5]
+    recent_purchases = Purchase.objects.filter(
+        owner=request.user
+    ).order_by("-purchase_date")[:5]
 
     # -------------------------
     # Monthly Sales
     # -------------------------
 
     sales_chart = (
-        Sale.objects
+        Sale.objects.filter(
+            owner=request.user
+        )
         .annotate(month=TruncMonth("sale_date"))
         .values("month")
         .annotate(total=Sum("total_amount"))
@@ -48,7 +68,9 @@ def dashboard(request):
     )
 
     purchase_chart = (
-        Purchase.objects
+        Purchase.objects.filter(
+            owner=request.user
+        )
         .annotate(month=TruncMonth("purchase_date"))
         .values("month")
         .annotate(total=Sum("total_amount"))

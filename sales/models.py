@@ -1,9 +1,14 @@
 from django.db import models
 from customers.models import Customer
 from inventory.models import Product
-
+from django.contrib.auth.models import User
 
 class Sale(models.Model):
+
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
 
     customer = models.ForeignKey(
         Customer,

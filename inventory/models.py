@@ -1,7 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -11,7 +16,10 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE

@@ -8,7 +8,9 @@ from .forms import LedgerForm, JournalForm, CashBookForm
 
 def ledger_list(request):
 
-    ledger = Ledger.objects.all().order_by("-date")
+    ledger = Ledger.objects.filter(
+        owner=request.user
+    ).order_by("-date")
 
     return render(
         request,
@@ -33,7 +35,11 @@ def add_ledger(request):
 
         if form.is_valid():
 
-            form.save()
+            ledger = form.save(commit=False)
+
+            ledger.owner = request.user
+
+            ledger.save()
 
             return redirect("ledger_list")
 
@@ -54,7 +60,9 @@ def add_ledger(request):
 
 def journal_list(request):
 
-    journals = Journal.objects.all().order_by("-date")
+    journals = Journal.objects.filter(
+        owner=request.user
+    ).order_by("-date")
 
     return render(
         request,
@@ -73,7 +81,11 @@ def add_journal(request):
 
         if form.is_valid():
 
-            form.save()
+            journal = form.save(commit=False)
+
+            journal.owner = request.user
+
+            journal.save()
 
             return redirect("journal_list")
 
@@ -94,7 +106,9 @@ def add_journal(request):
 
 def cashbook_list(request):
 
-    cashbooks = CashBook.objects.all().order_by("-date")
+    cashbooks = CashBook.objects.filter(
+        owner=request.user
+    ).order_by("-date")
 
     return render(
         request,
@@ -113,7 +127,11 @@ def add_cashbook(request):
 
         if form.is_valid():
 
-            form.save()
+            cashbook = form.save(commit=False)
+
+            cashbook.owner = request.user
+
+            cashbook.save()
 
             return redirect("cashbook_list")
 

@@ -6,7 +6,9 @@ from .forms import ExpenseForm
 
 def expense_list(request):
 
-    expenses = Expense.objects.all().order_by("-expense_date")
+    expenses = Expense.objects.filter(
+        owner=request.user
+    ).order_by("-expense_date")
 
     return render(
         request,
@@ -25,7 +27,11 @@ def add_expense(request):
 
         if form.is_valid():
 
-            form.save()
+            expense = form.save(commit=False)
+
+            expense.owner = request.user
+
+            expense.save()
 
             return redirect("expense_list")
 
@@ -47,7 +53,8 @@ def edit_expense(request, pk):
 
     expense = get_object_or_404(
         Expense,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     if request.method == "POST":
@@ -81,7 +88,8 @@ def delete_expense(request, pk):
 
     expense = get_object_or_404(
         Expense,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     expense.delete()

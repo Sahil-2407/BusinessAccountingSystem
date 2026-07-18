@@ -1,7 +1,13 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Ledger(models.Model):
+
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
 
     date = models.DateField()
 
@@ -39,6 +45,11 @@ class Ledger(models.Model):
 
 class Journal(models.Model):
 
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
     date = models.DateField()
 
     description = models.CharField(
@@ -68,6 +79,11 @@ class Journal(models.Model):
 
 
 class CashBook(models.Model):
+
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
 
     date = models.DateField()
 

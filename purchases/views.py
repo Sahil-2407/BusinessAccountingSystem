@@ -19,6 +19,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from accounting.models import Ledger, Journal, CashBook
 from .models import Purchase, PurchaseItem
+from suppliers.models import Supplier
 
 
 def purchase_list(request):
@@ -27,6 +28,8 @@ def purchase_list(request):
 
     purchases = Purchase.objects.select_related(
         "supplier"
+    ).filter(
+        owner=request.user
     )
 
     if query:
@@ -67,13 +70,22 @@ def add_purchase(request):
     if request.method == "POST":
 
         form = PurchaseForm(request.POST)
+        form.fields["supplier"].queryset = Supplier.objects.filter(
+            owner=request.user
+        )
         formset = PurchaseItemFormSet(request.POST)
+        for item_form in formset:
+            item_form.fields["product"].queryset = Product.objects.filter(
+            owner=request.user
+            )
 
         if form.is_valid() and formset.is_valid():
 
             with transaction.atomic():
 
                 purchase = form.save(commit=False)
+
+                purchase.owner = request.user
 
                 purchase.total_amount = Decimal("0.00")
 
@@ -118,8 +130,17 @@ def add_purchase(request):
     else:
 
         form = PurchaseForm()
+
+        form.fields["supplier"].queryset = Supplier.objects.filter(
+            owner=request.user
+        )
+
         formset = PurchaseItemFormSet()
 
+        for item_form in formset:
+            item_form.fields["product"].queryset = Product.objects.filter(
+                owner=request.user
+            )
     return render(
     request,
     "purchase_form.html",
@@ -134,7 +155,8 @@ def edit_purchase(request, pk):
 
     purchase = get_object_or_404(
         Purchase,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     if request.method == "POST":
@@ -144,10 +166,19 @@ def edit_purchase(request, pk):
             instance=purchase
         )
 
+        form.fields["supplier"].queryset = Supplier.objects.filter(
+            owner=request.user
+        )
+
         formset = PurchaseItemFormSet(
             request.POST,
             instance=purchase
         )
+
+        for item_form in formset:
+            item_form.fields["product"].queryset = Product.objects.filter(
+                owner=request.user
+            )
 
         if form.is_valid() and formset.is_valid():
 
@@ -210,8 +241,16 @@ def edit_purchase(request, pk):
 
         form = PurchaseForm(instance=purchase)
 
+        form.fields["supplier"].queryset = Supplier.objects.filter(
+            owner=request.user
+        )
+
         formset = PurchaseItemFormSet(instance=purchase)
 
+        for item_form in formset:
+            item_form.fields["product"].queryset = Product.objects.filter(
+                owner=request.user
+            )
     return render(
         request,
         "edit_purchase.html",
@@ -224,7 +263,8 @@ def purchase_invoice(request, pk):
 
     purchase = get_object_or_404(
         Purchase.objects.select_related("supplier"),
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     items = PurchaseItem.objects.select_related(
@@ -245,7 +285,8 @@ def purchase_invoice_pdf(request, pk):
 
     purchase = get_object_or_404(
         Purchase,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     items = PurchaseItem.objects.filter(
@@ -372,12 +413,12 @@ def purchase_invoice_pdf(request, pk):
 
     return response
 @transaction.atomic
-@transaction.atomic
 def delete_purchase(request, pk):
 
     purchase = get_object_or_404(
         Purchase,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     # Restore Stock

@@ -13,11 +13,11 @@ from datetime import datetime
 
 def reports_home(request):
 
-    sales = Sale.objects.all()
+    sales = Sale.objects.filter(owner=request.user)
 
-    purchases = Purchase.objects.all()
+    purchases = Purchase.objects.filter(owner=request.user)
 
-    expenses = Expense.objects.all()
+    expenses = Expense.objects.filter(owner=request.user)
 
     total_sales = sum(s.total_amount for s in sales)
 
@@ -34,7 +34,9 @@ def reports_home(request):
     # ---------------- Sales ----------------
 
     sales_data = (
-        Sale.objects
+        Sale.objects.filter(
+            owner=request.user
+        )
         .annotate(month=TruncMonth("sale_date"))
         .values("month")
         .annotate(total=Sum("total_amount"))
@@ -43,7 +45,9 @@ def reports_home(request):
     # ---------------- Purchases ----------------
 
     purchase_data = (
-        Purchase.objects
+        Purchase.objects.filter(
+            owner=request.user
+        )
         .annotate(month=TruncMonth("purchase_date"))
         .values("month")
         .annotate(total=Sum("total_amount"))
@@ -52,7 +56,9 @@ def reports_home(request):
     # ---------------- Expenses ----------------
 
     expense_data = (
-        Expense.objects
+        Expense.objects.filter(
+            owner=request.user
+        )
         .annotate(month=TruncMonth("expense_date"))
         .values("month")
         .annotate(total=Sum("amount"))
@@ -121,19 +127,25 @@ def reports_home(request):
 def profit_loss(request):
 
     total_sales = (
-        Sale.objects.aggregate(
+        Sale.objects.filter(
+            owner=request.user
+        ).aggregate(
             total=Sum("total_amount")
         )["total"] or 0
     )
 
     total_purchases = (
-        Purchase.objects.aggregate(
+        Purchase.objects.filter(
+            owner=request.user
+        ).aggregate(
             total=Sum("total_amount")
         )["total"] or 0
     )
 
     total_expenses = (
-        Expense.objects.aggregate(
+        Expense.objects.filter(
+            owner=request.user
+        ).aggregate(
             total=Sum("amount")
         )["total"] or 0
     )
@@ -159,7 +171,9 @@ def trial_balance(request):
     search = request.GET.get("search", "")
 
     ledger_entries = (
-        Ledger.objects
+        Ledger.objects.filter(
+            owner=request.user
+        )
         .values("particulars")
         .annotate(
             total_debit=Sum("debit"),
@@ -201,7 +215,9 @@ def balance_sheet(request):
     # Inventory Value
     inventory_value = Decimal("0.00")
 
-    products = Product.objects.all()
+    products = Product.objects.filter(
+        owner=request.user
+    )
 
     for product in products:
 
@@ -212,7 +228,9 @@ def balance_sheet(request):
 
     # Cash Balance
     cash = (
-        Ledger.objects.aggregate(
+        Ledger.objects.filter(
+            owner=request.user
+        ).aggregate(
             debit=Sum("debit"),
             credit=Sum("credit")
         )
@@ -253,9 +271,9 @@ def monthly_report(request):
 
     month = request.GET.get("month")
 
-    sales = Sale.objects.all()
-    purchases = Purchase.objects.all()
-    expenses = Expense.objects.all()
+    sales = Sale.objects.filter(owner=request.user)
+    purchases = Purchase.objects.filter(owner=request.user)
+    expenses = Expense.objects.filter(owner=request.user)
 
     if month:
 
@@ -311,9 +329,9 @@ def yearly_report(request):
 
     year = request.GET.get("year")
 
-    sales = Sale.objects.all()
-    purchases = Purchase.objects.all()
-    expenses = Expense.objects.all()
+    sales = Sale.objects.filter(owner=request.user)
+    purchases = Purchase.objects.filter(owner=request.user)
+    expenses = Expense.objects.filter(owner=request.user)
 
     if year:
 
@@ -370,9 +388,9 @@ def date_range_report(request):
     from_date = request.GET.get("from_date")
     to_date = request.GET.get("to_date")
 
-    sales = Sale.objects.all()
-    purchases = Purchase.objects.all()
-    expenses = Expense.objects.all()
+    sales = Sale.objects.filter(owner=request.user)
+    purchases = Purchase.objects.filter(owner=request.user)
+    expenses = Expense.objects.filter(owner=request.user)
 
     if from_date and to_date:
 

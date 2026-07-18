@@ -64,6 +64,8 @@ def create_accounting_entries(sale):
 
     Ledger.objects.create(
 
+        owner=sale.owner,
+
         date=sale.sale_date,
 
         particulars=f"Sale Invoice {sale.invoice_number}",
@@ -80,6 +82,8 @@ def create_accounting_entries(sale):
 
     Journal.objects.create(
 
+        owner=sale.owner,
+
         date=sale.sale_date,
 
         description=f"Sale Invoice {sale.invoice_number}",
@@ -95,6 +99,8 @@ def create_accounting_entries(sale):
     )
 
     CashBook.objects.create(
+
+        owner=sale.owner,
 
         date=sale.sale_date,
 
@@ -115,6 +121,8 @@ def update_accounting_entries(sale):
 
     Ledger.objects.filter(
 
+        owner=sale.owner,
+
         reference=sale.invoice_number
 
     ).update(
@@ -131,6 +139,8 @@ def update_accounting_entries(sale):
 
     Journal.objects.filter(
 
+        owner=sale.owner,
+
         reference=sale.invoice_number
 
     ).update(
@@ -144,6 +154,8 @@ def update_accounting_entries(sale):
     )
 
     CashBook.objects.filter(
+
+        owner=sale.owner,
 
         reference=sale.invoice_number
 
@@ -163,13 +175,16 @@ def update_accounting_entries(sale):
 def delete_accounting_entries(sale):
 
     Ledger.objects.filter(
+        owner=sale.owner,
         reference=sale.invoice_number
     ).delete()
 
     Journal.objects.filter(
+        owner=sale.owner,
         reference=sale.invoice_number
     ).delete()
 
     CashBook.objects.filter(
+        owner=sale.owner,
         reference=sale.invoice_number
     ).delete()

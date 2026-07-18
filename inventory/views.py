@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Product, Category
 from .forms import ProductForm, CategoryForm
+from django.contrib.auth.decorators import login_required
 
 
 # ===========================
@@ -48,15 +49,22 @@ def inventory_dashboard(request):
 
 def category_list(request):
 
-    categories = Category.objects.all().order_by("name")
+    categories = Category.objects.filter(
+        owner=request.user
+    ).order_by("name")
+
+    query = request.GET.get("q")
+
+    if query:
+        categories = categories.filter(name__icontains=query)
 
     return render(
-    request,
-    "inventory/category_list.html",
-    {
-        "categories": categories
-    }
-)
+        request,
+        "inventory/category_list.html",
+        {
+            "categories": categories
+        }
+    )
 
 def add_category(request):
 
@@ -66,7 +74,11 @@ def add_category(request):
 
         if form.is_valid():
 
-            form.save()
+            category = form.save(commit=False)
+
+            category.owner = request.user
+
+            category.save()
 
             return redirect("category_list")
 
@@ -86,9 +98,10 @@ def add_category(request):
 
 def edit_category(request, pk):
 
-    category = get_object_or_404(
+    get_object_or_404(
         Category,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     if request.method == "POST":
@@ -100,7 +113,11 @@ def edit_category(request, pk):
 
         if form.is_valid():
 
-            form.save()
+            category = form.save(commit=False)
+
+            category.owner = request.user
+
+            category.save()
 
             return redirect("category_list")
 
@@ -120,11 +137,11 @@ def edit_category(request, pk):
 
 def delete_category(request, pk):
 
-    category = get_object_or_404(
+    get_object_or_404(
         Category,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
-
     category.delete()
 
     return redirect("category_list")
@@ -138,7 +155,7 @@ def product_list(request):
 
     query = request.GET.get("q")
 
-    products = Product.objects.all()
+    products = Product.objects.filter(owner=request.user)
 
     if query:
 
@@ -166,13 +183,21 @@ def add_product(request):
 
         if form.is_valid():
 
-            form.save()
+            product = form.save(commit=False)
+
+            product.owner = request.user
+
+            product.save()
 
             return redirect("product_list")
 
     else:
 
         form = ProductForm()
+
+        form.fields["category"].queryset = Category.objects.filter(
+            owner=request.user
+        )
 
     return render(
         request,
@@ -183,9 +208,14 @@ def add_product(request):
     )
 
 
+@login_required
 def edit_product(request, pk):
 
-    product = get_object_or_404(Product, pk=pk)
+    product = get_object_or_404(
+        Product,
+        pk=pk,
+        owner=request.user
+    )
 
     if request.method == "POST":
 
@@ -195,15 +225,25 @@ def edit_product(request, pk):
             instance=product
         )
 
+        form.fields["category"].queryset = Category.objects.filter(
+            owner=request.user
+        )
+
         if form.is_valid():
 
-            form.save()
+            product = form.save(commit=False)
+            product.owner = request.user
+            product.save()
 
             return redirect("product_list")
 
     else:
 
         form = ProductForm(instance=product)
+
+        form.fields["category"].queryset = Category.objects.filter(
+            owner=request.user
+        )
 
     return render(
         request,
@@ -216,7 +256,11 @@ def edit_product(request, pk):
 
 def delete_product(request, pk):
 
-    product = get_object_or_404(Product, pk=pk)
+    product = get_object_or_404(
+        Product,
+        pk=pk,
+        owner=request.user
+    )
 
     product.delete()
 

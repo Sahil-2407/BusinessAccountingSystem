@@ -43,6 +43,7 @@ def restore_stock(purchase):
 def create_accounting_entries(purchase):
 
     Ledger.objects.create(
+        owner=purchase.owner,
         date=purchase.purchase_date,
         particulars=f"Purchase Invoice {purchase.invoice_number}",
         debit=purchase.total_amount,
@@ -52,6 +53,7 @@ def create_accounting_entries(purchase):
     )
 
     Journal.objects.create(
+        owner=purchase.owner,
         date=purchase.purchase_date,
         description=f"Purchase Invoice {purchase.invoice_number}",
         debit_account="Purchases",
@@ -61,6 +63,7 @@ def create_accounting_entries(purchase):
     )
 
     CashBook.objects.create(
+        owner=purchase.owner,
         date=purchase.purchase_date,
         receipt=0,
         payment=purchase.total_amount,
@@ -69,10 +72,10 @@ def create_accounting_entries(purchase):
         reference=purchase.invoice_number,
     )
 
-
 def update_accounting_entries(purchase):
 
     Ledger.objects.filter(
+        owner=purchase.owner,
         reference=purchase.invoice_number
     ).update(
         date=purchase.purchase_date,
@@ -81,6 +84,7 @@ def update_accounting_entries(purchase):
     )
 
     Journal.objects.filter(
+        owner=purchase.owner,
         reference=purchase.invoice_number
     ).update(
         date=purchase.purchase_date,
@@ -88,6 +92,7 @@ def update_accounting_entries(purchase):
     )
 
     CashBook.objects.filter(
+        owner=purchase.owner,
         reference=purchase.invoice_number
     ).update(
         date=purchase.purchase_date,
@@ -99,13 +104,16 @@ def update_accounting_entries(purchase):
 def delete_accounting_entries(purchase):
 
     Ledger.objects.filter(
+        owner=purchase.owner,
         reference=purchase.invoice_number
     ).delete()
 
     Journal.objects.filter(
+        owner=purchase.owner,
         reference=purchase.invoice_number
     ).delete()
 
     CashBook.objects.filter(
+        owner=purchase.owner,
         reference=purchase.invoice_number
     ).delete()

@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from reportlab.pdfgen import canvas
+from customers.models import Customer
+from inventory.models import Product
 
 from accounting.models import CashBook, Journal, Ledger
 from .forms import SaleForm, SaleItemFormSet
@@ -28,6 +30,8 @@ def sale_list(request):
 
     sales = Sale.objects.select_related(
         "customer"
+    ).filter(
+        owner=request.user
     )
 
     if query:
@@ -71,8 +75,9 @@ def sale_list(request):
 def sale_invoice(request, pk):
 
     sale = get_object_or_404(
-        Sale.objects.select_related("customer"),
+        Sale,
         pk=pk,
+        owner=request.user
     )
 
     items = SaleItem.objects.select_related(
@@ -100,7 +105,8 @@ def sale_invoice_pdf(request, pk):
 
     sale = get_object_or_404(
         Sale,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     items = SaleItem.objects.filter(
@@ -234,8 +240,9 @@ def sale_invoice_pdf(request, pk):
 def view_sale(request, pk):
 
     sale = get_object_or_404(
-        Sale.objects.select_related("customer"),
+        Sale,
         pk=pk,
+        owner=request.user
     )
 
     items = SaleItem.objects.select_related(
@@ -265,8 +272,9 @@ def delete_sale(request, pk):
 
     sale = get_object_or_404(
         Sale,
-        pk=pk
-    )
+        pk=pk,
+        owner=request.user
+    )   
 
     items = SaleItem.objects.filter(
         sale=sale
@@ -281,14 +289,17 @@ def delete_sale(request, pk):
         product.save()
 
     Ledger.objects.filter(
+        owner=sale.owner,
         reference=sale.invoice_number
     ).delete()
 
     Journal.objects.filter(
+        owner=sale.owner,
         reference=sale.invoice_number
     ).delete()
 
     CashBook.objects.filter(
+        owner=sale.owner,
         reference=sale.invoice_number
     ).delete()
 
@@ -304,7 +315,11 @@ def delete_sale(request, pk):
 @transaction.atomic
 def edit_sale(request, pk):
 
-    sale = get_object_or_404(Sale, pk=pk)
+    sale = get_object_or_404(
+        Sale,
+        pk=pk,
+        owner=request.user
+    )
 
     if request.method == "POST":
 
@@ -380,6 +395,7 @@ def edit_sale(request, pk):
 
             # Update Ledger
             Ledger.objects.filter(
+                owner=sale.owner,
                 reference=sale.invoice_number
             ).update(
                 date=sale.sale_date,
@@ -391,6 +407,7 @@ def edit_sale(request, pk):
 
             # Update Journal
             Journal.objects.filter(
+                owner=sale.owner,
                 reference=sale.invoice_number
             ).update(
                 date=sale.sale_date,
@@ -402,6 +419,7 @@ def edit_sale(request, pk):
 
             # Update CashBook
             CashBook.objects.filter(
+                owner=sale.owner,
                 reference=sale.invoice_number
             ).update(
                 date=sale.sale_date,
@@ -441,16 +459,30 @@ def edit_sale(request, pk):
 from decimal import Decimal
 
 @transaction.atomic
+@transaction.atomic
 def add_sale(request):
 
     if request.method == "POST":
 
         form = SaleForm(request.POST)
+
+        # Show only current user's customers
+        form.fields["customer"].queryset = Customer.objects.filter(
+            owner=request.user
+        )
+
         formset = SaleItemFormSet(request.POST)
+
+        # Show only current user's products
+        for item_form in formset:
+            item_form.fields["product"].queryset = Product.objects.filter(
+                owner=request.user
+            )
 
         if form.is_valid() and formset.is_valid():
 
             sale = form.save(commit=False)
+            sale.owner = request.user
             sale.total_amount = Decimal("0.00")
             sale.save()
 
@@ -458,23 +490,22 @@ def add_sale(request):
 
             try:
 
-                # Validate and reduce stock
+                # Reduce stock
                 reduce_stock(items)
 
                 # Calculate total
                 total = calculate_total(items)
 
-                # Save Sale Items
+                # Save sale items
                 for item in items:
-
                     item.sale = sale
                     item.save()
 
-                # Update Sale Total
+                # Save total
                 sale.total_amount = total
                 sale.save()
 
-                # Create Accounting Entries
+                # Accounting entries
                 create_accounting_entries(sale)
 
                 messages.success(
@@ -496,7 +527,26 @@ def add_sale(request):
     else:
 
         form = SaleForm()
+
+        # Show only current user's customers
+        form.fields["customer"].queryset = Customer.objects.filter(
+            owner=request.user
+        )
+
         formset = SaleItemFormSet()
+
+        print("Logged in user:", request.user)
+
+        for item_form in formset:
+            qs = Product.objects.filter(owner=request.user)
+            print("Products:", list(qs.values_list("name", flat=True)))
+            item_form.fields["product"].queryset = qs
+
+        # Show only current user's products
+        for item_form in formset:
+            item_form.fields["product"].queryset = Product.objects.filter(
+                owner=request.user
+            )
 
     return render(
         request,
