@@ -11,11 +11,17 @@ from django.contrib.auth.decorators import login_required
 
 def inventory_dashboard(request):
 
-    total_products = Product.objects.count()
+    total_products = Product.objects.filter(
+        owner=request.user
+    ).count()
 
-    total_categories = Category.objects.count()
+    total_categories = Category.objects.filter(
+        owner=request.user
+    ).count()
 
-    products = Product.objects.all()
+    products = Product.objects.filter(
+        owner=request.user
+    )
 
     inventory_value = 0
 
@@ -41,7 +47,6 @@ def inventory_dashboard(request):
         "inventory/inventory_dashboard.html",
         context,
     )
-
 
 # ===========================
 # Category Management

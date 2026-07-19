@@ -7,8 +7,9 @@ from suppliers.models import Supplier
 from inventory.models import Product
 from purchases.models import Purchase
 from sales.models import Sale
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def dashboard(request):
 
     # Dashboard Counts

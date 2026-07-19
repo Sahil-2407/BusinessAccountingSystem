@@ -6,8 +6,9 @@ from django.shortcuts import (
 
 from .models import Supplier
 from .forms import SupplierForm
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def supplier_list(request):
 
     query = request.GET.get("q")
@@ -29,7 +30,7 @@ def supplier_list(request):
         }
     )
 
-
+@login_required
 def add_supplier(request):
 
     if request.method == "POST":
@@ -56,7 +57,7 @@ def add_supplier(request):
         }
     )
 
-
+@login_required
 def edit_supplier(request, pk):
 
     supplier = get_object_or_404(
@@ -90,12 +91,13 @@ def edit_supplier(request, pk):
         }
     )
 
-
+@login_required
 def delete_supplier(request, pk):
 
     supplier = get_object_or_404(
         Supplier,
-        pk=pk
+        pk=pk,
+        owner=request.user
     )
 
     supplier.delete()
