@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from .forms import UserUpdateForm, ProfileUpdateForm
+from customers.models import Customer
+from suppliers.models import Supplier
+from inventory.models import Product
+from purchases.models import Purchase
+from sales.models import Sale
+from expenses.models import Expense
+from .models import Profile
 
 
 def register(request):
@@ -48,8 +56,52 @@ def user_login(request):
 
 
 @login_required
+
 def profile(request):
-    return render(request, "profile.html")
+    Profile.objects.get_or_create(user=request.user)
+    if request.method == "POST":
+
+        user_form = UserUpdateForm(
+            request.POST,
+            instance=request.user
+        )
+
+        profile_form = ProfileUpdateForm(
+            request.POST,
+            request.FILES,
+            instance=request.user.profile
+        )
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+
+            messages.success(request, "Profile updated successfully.")
+            return redirect("profile")
+
+    else:
+
+        user_form = UserUpdateForm(
+            instance=request.user
+        )
+
+        profile_form = ProfileUpdateForm(
+            instance=request.user.profile
+        )
+
+    context = {
+        "user_form": user_form,
+        "profile_form": profile_form,
+
+        "customers": Customer.objects.filter(owner=request.user).count(),
+        "suppliers": Supplier.objects.filter(owner=request.user).count(),
+        "products": Product.objects.filter(owner=request.user).count(),
+        "purchases": Purchase.objects.filter(owner=request.user).count(),
+        "sales": Sale.objects.filter(owner=request.user).count(),
+        "expenses": Expense.objects.filter(owner=request.user).count(),
+    }
+
+    return render(request, "accounts/profile.html", context)
 
 
 def user_logout(request):
