@@ -95,6 +95,9 @@ def profile(request):
         "purchases": Purchase.objects.filter(owner=request.user).count(),
         "sales": Sale.objects.filter(owner=request.user).count(),
         "expenses": Expense.objects.filter(owner=request.user).count(),
+
+        "date_joined": request.user.date_joined,
+        "last_login": request.user.last_login,
     }
 
     return render(request, "accounts/profile.html", context)
