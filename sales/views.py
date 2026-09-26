@@ -22,8 +22,20 @@ from .services import (
     update_accounting_entries,
     delete_accounting_entries,
 )
+from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
+from .serializers import SaleSerializer
 
+import os
+
+from reportlab.lib.utils import ImageReader
+from accounts.models import BusinessSettings
+
+@login_required
 def sale_list(request):
 
     query = request.GET.get("q", "")
@@ -72,6 +84,8 @@ def sale_list(request):
         },
 
     )
+
+@login_required
 def sale_invoice(request, pk):
 
     sale = get_object_or_404(
@@ -101,6 +115,8 @@ def sale_invoice(request, pk):
         },
 
     )
+
+@login_required
 def sale_invoice_pdf(request, pk):
 
     sale = get_object_or_404(
@@ -109,10 +125,18 @@ def sale_invoice_pdf(request, pk):
         owner=request.user
     )
 
-    items = SaleItem.objects.filter(
+    items = SaleItem.objects.select_related(
+        "product"
+    ).filter(
         sale=sale
     )
 
+    # Get business settings for logged-in user
+    business = BusinessSettings.objects.filter(
+        owner=request.user
+    ).first()
+
+    # Create PDF response
     response = HttpResponse(
         content_type="application/pdf"
     )
@@ -125,17 +149,122 @@ def sale_invoice_pdf(request, pk):
 
     y = 800
 
+    # --------------------------------------------------
+    # BUSINESS HEADER
+    # --------------------------------------------------
+
     pdf.setFont("Helvetica-Bold", 18)
 
-    pdf.drawString(
-        180,
-        y,
-        "Business Accounting ERP"
+    business_name = (
+        business.business_name
+        if business
+        else "My Business"
     )
 
-    y -= 40
+    pdf.drawString(
+        50,
+        y,
+        business_name
+    )
 
-    pdf.setFont("Helvetica", 12)
+    y -= 25
+
+    pdf.setFont("Helvetica", 10)
+
+    if business:
+
+        if business.address:
+            pdf.drawString(
+                50,
+                y,
+                business.address[:90]
+            )
+            y -= 15
+
+        if business.phone:
+            pdf.drawString(
+                50,
+                y,
+                f"Phone: {business.phone}"
+            )
+            y -= 15
+
+        if business.email:
+            pdf.drawString(
+                50,
+                y,
+                f"Email: {business.email}"
+            )
+            y -= 15
+
+        if business.gst_number:
+            pdf.drawString(
+                50,
+                y,
+                f"GSTIN: {business.gst_number}"
+            )
+            y -= 15
+
+    # --------------------------------------------------
+    # BUSINESS LOGO
+    # --------------------------------------------------
+
+    if business and business.logo:
+
+        try:
+            logo_path = business.logo.path
+
+            if os.path.exists(logo_path):
+
+                pdf.drawImage(
+                    ImageReader(logo_path),
+                    450,
+                    735,
+                    width=90,
+                    height=60,
+                    preserveAspectRatio=True,
+                    mask="auto"
+                )
+
+        except Exception:
+            pass
+
+    # --------------------------------------------------
+    # INVOICE TITLE
+    # --------------------------------------------------
+
+    y -= 20
+
+    pdf.line(
+        50,
+        y,
+        550,
+        y
+    )
+
+    y -= 35
+
+    pdf.setFont(
+        "Helvetica-Bold",
+        16
+    )
+
+    pdf.drawString(
+        50,
+        y,
+        "SALES INVOICE"
+    )
+
+    # --------------------------------------------------
+    # INVOICE DETAILS
+    # --------------------------------------------------
+
+    y -= 35
+
+    pdf.setFont(
+        "Helvetica",
+        11
+    )
 
     pdf.drawString(
         50,
@@ -159,32 +288,73 @@ def sale_invoice_pdf(request, pk):
         f"Date : {sale.sale_date}"
     )
 
-    y -= 40
+    y -= 35
 
-    pdf.setFont("Helvetica-Bold", 12)
+    # --------------------------------------------------
+    # TABLE HEADER
+    # --------------------------------------------------
 
-    pdf.drawString(50, y, "Product")
+    pdf.setFont(
+        "Helvetica-Bold",
+        11
+    )
 
-    pdf.drawString(250, y, "Qty")
+    pdf.drawString(
+        50,
+        y,
+        "Product"
+    )
 
-    pdf.drawString(330, y, "Price")
+    pdf.drawString(
+        250,
+        y,
+        "Qty"
+    )
 
-    pdf.drawString(430, y, "Subtotal")
+    pdf.drawString(
+        330,
+        y,
+        "Price"
+    )
+
+    pdf.drawString(
+        430,
+        y,
+        "Subtotal"
+    )
+
+    y -= 15
+
+    pdf.line(
+        50,
+        y,
+        550,
+        y
+    )
 
     y -= 20
 
-    pdf.line(50, y, 550, y)
+    # --------------------------------------------------
+    # SALE ITEMS
+    # --------------------------------------------------
 
-    y -= 20
-
-    pdf.setFont("Helvetica", 11)
+    pdf.setFont(
+        "Helvetica",
+        10
+    )
 
     for item in items:
+
+        product_name = item.product.name
+
+        # Prevent very long product names
+        if len(product_name) > 30:
+            product_name = product_name[:27] + "..."
 
         pdf.drawString(
             50,
             y,
-            item.product.name
+            product_name
         )
 
         pdf.drawString(
@@ -196,24 +366,41 @@ def sale_invoice_pdf(request, pk):
         pdf.drawString(
             330,
             y,
-            f"{item.selling_price}"
+            f"₹ {item.selling_price}"
         )
 
         pdf.drawString(
             430,
             y,
-            f"{item.subtotal}"
+            f"₹ {item.subtotal}"
         )
 
         y -= 20
 
-    y -= 20
+        # Prevent content from going outside page
+        if y < 150:
+            pdf.showPage()
+            y = 800
 
-    pdf.line(50, y, 550, y)
+    # --------------------------------------------------
+    # TOTAL
+    # --------------------------------------------------
+
+    y -= 15
+
+    pdf.line(
+        50,
+        y,
+        550,
+        y
+    )
 
     y -= 30
 
-    pdf.setFont("Helvetica-Bold", 14)
+    pdf.setFont(
+        "Helvetica-Bold",
+        14
+    )
 
     pdf.drawString(
         320,
@@ -221,9 +408,28 @@ def sale_invoice_pdf(request, pk):
         f"Grand Total : ₹ {sale.total_amount}"
     )
 
-    y -= 50
+    # --------------------------------------------------
+    # PAYMENT STATUS
+    # --------------------------------------------------
 
-    pdf.setFont("Helvetica", 12)
+    y -= 30
+
+    pdf.setFont(
+        "Helvetica",
+        11
+    )
+
+    pdf.drawString(
+        320,
+        y,
+        f"Payment Status : {sale.payment_status}"
+    )
+
+    # --------------------------------------------------
+    # SIGNATURE
+    # --------------------------------------------------
+
+    y -= 60
 
     pdf.drawString(
         50,
@@ -231,12 +437,35 @@ def sale_invoice_pdf(request, pk):
         "Authorized Signature"
     )
 
+    pdf.line(
+        50,
+        y - 5,
+        180,
+        y - 5
+    )
+
+    # --------------------------------------------------
+    # FOOTER
+    # --------------------------------------------------
+
+    pdf.setFont(
+        "Helvetica",
+        9
+    )
+
+    pdf.drawCentredString(
+        300,
+        30,
+        "Thank you for your business!"
+    )
+
     pdf.showPage()
 
     pdf.save()
 
     return response
-
+    
+@login_required
 def view_sale(request, pk):
 
     sale = get_object_or_404(
@@ -456,9 +685,7 @@ def edit_sale(request, pk):
             "formset": formset,
         }
     )
-from decimal import Decimal
 
-@transaction.atomic
 @transaction.atomic
 def add_sale(request):
 
@@ -556,3 +783,55 @@ def add_sale(request):
             "formset": formset,
         }
     )
+class SaleViewSet(viewsets.ModelViewSet):
+    serializer_class = SaleSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Sale.objects
+            .filter(owner=self.request.user)
+            .select_related("customer")
+            .prefetch_related("saleitem_set__product")
+        )
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        items = serializer.validated_data.pop("items")
+
+        with transaction.atomic():
+            sale = serializer.save(owner=request.user)
+
+            total = Decimal("0.00")
+
+            for item_data in items:
+                product = item_data["product"]
+                quantity = item_data["quantity"]
+                selling_price = item_data["selling_price"]
+
+                subtotal = quantity * selling_price
+
+                SaleItem.objects.create(
+                    sale=sale,
+                    product=product,
+                    quantity=quantity,
+                    selling_price=selling_price,
+                    subtotal=subtotal,
+                )
+
+                product.stock_quantity -= quantity
+                product.save()
+
+                total += subtotal
+
+            sale.total_amount = total
+            sale.save()
+
+            create_accounting_entries(sale)
+
+        return Response(
+            self.get_serializer(sale).data,
+            status=status.HTTP_201_CREATED,
+        )

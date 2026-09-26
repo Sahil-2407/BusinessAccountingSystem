@@ -4,11 +4,15 @@ from .models import Product, Category
 from .forms import ProductForm, CategoryForm
 from django.contrib.auth.decorators import login_required
 
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .serializers import CategorySerializer, ProductSerializer
+
 
 # ===========================
 # Inventory Dashboard
 # ===========================
-
+@login_required
 def inventory_dashboard(request):
 
     total_products = Product.objects.filter(
@@ -51,7 +55,7 @@ def inventory_dashboard(request):
 # ===========================
 # Category Management
 # ===========================
-
+@login_required
 def category_list(request):
 
     categories = Category.objects.filter(
@@ -71,6 +75,7 @@ def category_list(request):
         }
     )
 
+@login_required
 def add_category(request):
 
     if request.method == "POST":
@@ -100,7 +105,7 @@ def add_category(request):
         }
     )
 
-
+@login_required
 def edit_category(request, pk):
 
     get_object_or_404(
@@ -139,7 +144,7 @@ def edit_category(request, pk):
         }
     )
 
-
+@login_required
 def delete_category(request, pk):
 
     get_object_or_404(
@@ -155,7 +160,7 @@ def delete_category(request, pk):
 # ===========================
 # Product Management
 # ===========================
-
+@login_required
 def product_list(request):
 
     query = request.GET.get("q")
@@ -176,7 +181,7 @@ def product_list(request):
         }
     )
 
-
+@login_required
 def add_product(request):
 
     if request.method == "POST":
@@ -258,7 +263,7 @@ def edit_product(request, pk):
         }
     )
 
-
+@login_required
 def delete_product(request, pk):
 
     product = get_object_or_404(
@@ -270,3 +275,26 @@ def delete_product(request, pk):
     product.delete()
 
     return redirect("product_list")
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Category.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Product.objects.filter(
+            owner=self.request.user
+        ).select_related("category")
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

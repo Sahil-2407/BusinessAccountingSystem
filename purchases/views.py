@@ -20,8 +20,14 @@ from django.contrib import messages
 from accounting.models import Ledger, Journal, CashBook
 from .models import Purchase, PurchaseItem
 from suppliers.models import Supplier
+from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from .serializers import PurchaseSerializer
 
+@login_required
 def purchase_list(request):
 
     query = request.GET.get("q", "")
@@ -64,7 +70,7 @@ def purchase_list(request):
         }
     )
 
-
+@login_required
 def add_purchase(request):
 
     if request.method == "POST":
@@ -449,3 +455,80 @@ def delete_purchase(request, pk):
     )
 
     return redirect("purchase_list")
+class PurchaseViewSet(viewsets.ModelViewSet):
+
+    serializer_class = PurchaseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Purchase.objects
+            .filter(owner=self.request.user)
+            .select_related("supplier")
+            .prefetch_related("purchaseitem_set__product")
+        )
+
+    def create(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        items = serializer.validated_data.pop("items")
+
+        with transaction.atomic():
+
+            purchase = serializer.save(
+                owner=request.user
+            )
+
+            purchase_items = []
+
+            for item_data in items:
+
+                product = item_data["product"]
+                quantity = item_data["quantity"]
+                purchase_price = item_data["purchase_price"]
+
+                subtotal = (
+                    quantity *
+                    purchase_price
+                )
+
+                purchase_item = PurchaseItem(
+                    purchase=purchase,
+                    product=product,
+                    quantity=quantity,
+                    purchase_price=purchase_price,
+                    subtotal=subtotal,
+                )
+
+                purchase_items.append(
+                    purchase_item
+                )
+
+            PurchaseItem.objects.bulk_create(
+                purchase_items
+            )
+
+            total = calculate_total(
+                purchase_items
+            )
+
+            increase_stock(
+                purchase_items
+            )
+
+            purchase.total_amount = total
+            purchase.save()
+
+            create_accounting_entries(
+                purchase
+            )
+
+        return Response(
+            self.get_serializer(purchase).data,
+            status=status.HTTP_201_CREATED
+        )

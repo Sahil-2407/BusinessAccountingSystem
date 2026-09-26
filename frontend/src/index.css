@@ -1,0 +1,25 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e1e1e1;
+}
+
+.dashboard-card h3 {
+    margin-top: 0;
+    color: #666;
+}
+
+.dashboard-card h2 {
+    margin-bottom: 0;
+}

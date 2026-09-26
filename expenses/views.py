@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
-
+from django.contrib.auth.decorators import login_required
 from .models import Expense
 from .forms import ExpenseForm
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
+from .models import Expense
+from .serializers import ExpenseSerializer
 
+@login_required
 def expense_list(request):
 
     expenses = Expense.objects.filter(
@@ -18,7 +23,7 @@ def expense_list(request):
         }
     )
 
-
+@login_required
 def add_expense(request):
 
     if request.method == "POST":
@@ -48,7 +53,7 @@ def add_expense(request):
         }
     )
 
-
+@login_required
 def edit_expense(request, pk):
 
     expense = get_object_or_404(
@@ -83,7 +88,7 @@ def edit_expense(request, pk):
         }
     )
 
-
+@login_required
 def delete_expense(request, pk):
 
     expense = get_object_or_404(
@@ -95,3 +100,16 @@ def delete_expense(request, pk):
     expense.delete()
 
     return redirect("expense_list")
+class ExpenseViewSet(viewsets.ModelViewSet):
+    serializer_class = ExpenseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Expense.objects.filter(
+            owner=self.request.user
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(
+            owner=self.request.user
+        )

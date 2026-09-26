@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -45,6 +46,20 @@ urlpatterns = [
     path(
     "accounting/",
     include("accounting.urls")),
+    path("api/", include("customers.api_urls")),
+    path("api/", include("suppliers.api_urls")),
+    path("api/", include("inventory.api_urls")),
+    path("api/", include("sales.api_urls")),
+    path("api/", include("purchases.api_urls")),
+    path("api/", include("expenses.api_urls")),
+    path("api/accounting/", include("accounting.api_urls")),
+    path("api/reports/",include("reports.api_urls")),
+    path("api/auth/", include("businessaccounting.api_auth_urls")),
+    path("api/auth/", include("accounts.api_urls")),
+    path("api/",include("purchases.api_urls")),
+    path("api/", include("reports.api_urls")),
+    path("api/", include("accounting.api_urls")),
+    path("api/", include("accounts.api_urls")),
 ]
 
 if settings.DEBUG:

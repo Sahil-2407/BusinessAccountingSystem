@@ -7,6 +7,10 @@ from django.shortcuts import (
 from .models import Supplier
 from .forms import SupplierForm
 from django.contrib.auth.decorators import login_required
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
+from .serializers import SupplierSerializer
 
 @login_required
 def supplier_list(request):
@@ -103,3 +107,13 @@ def delete_supplier(request, pk):
     supplier.delete()
 
     return redirect("supplier_list")
+
+class SupplierViewSet(viewsets.ModelViewSet):
+    serializer_class = SupplierSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Supplier.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

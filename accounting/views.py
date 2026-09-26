@@ -2,6 +2,15 @@ from django.shortcuts import render, redirect
 
 from .models import Ledger, Journal, CashBook
 from .forms import LedgerForm, JournalForm, CashBookForm
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
+from .models import Ledger, Journal, CashBook
+from .serializers import (
+    LedgerSerializer,
+    JournalSerializer,
+    CashBookSerializer,
+)
 
 
 # ---------------- Ledger ----------------
@@ -146,3 +155,31 @@ def add_cashbook(request):
             "form": form
         }
     )
+class LedgerViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = LedgerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Ledger.objects.filter(
+            owner=self.request.user
+        ).order_by("-date", "-id")
+
+
+class JournalViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = JournalSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Journal.objects.filter(
+            owner=self.request.user
+        ).order_by("-date", "-id")
+
+
+class CashBookViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = CashBookSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CashBook.objects.filter(
+            owner=self.request.user
+        ).order_by("-date", "-id")

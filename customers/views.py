@@ -6,6 +6,11 @@ from django.core.paginator import Paginator
 from .models import Customer
 from .forms import CustomerForm
 
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
+from .serializers import CustomerSerializer
+
 
 @login_required
 def customer_list(request):
@@ -145,3 +150,13 @@ def delete_customer(request, pk):
     )
 
     return redirect("customer_list")
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Customer.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

@@ -11,6 +11,14 @@ from purchases.models import Purchase
 from sales.models import Sale
 from expenses.models import Expense
 from .models import Profile
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import BusinessSettings
+from .serializers import BusinessSettingsSerializer
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 
 def register(request):
@@ -106,3 +114,54 @@ def profile(request):
 def user_logout(request):
     logout(request)
     return redirect("login")
+
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+
+from .serializers import RegisterSerializer
+
+
+class RegisterAPIView(generics.CreateAPIView):
+
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+
+class CurrentUserAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({
+            "id": request.user.id,
+            "username": request.user.username,
+            "email": request.user.email,
+        })
+
+class BusinessSettingsViewSet(viewsets.ModelViewSet):
+    serializer_class = BusinessSettingsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return BusinessSettings.objects.filter(
+            owner=self.request.user
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+class MeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        return Response({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        })
