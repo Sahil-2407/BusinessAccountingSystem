@@ -186,4 +186,5 @@ SIMPLE_JWT = {
 }
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://business-accounting-system-git-main-shaik-97e6.vercel.app",
 ]
