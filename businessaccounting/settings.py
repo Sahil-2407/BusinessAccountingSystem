@@ -188,4 +188,5 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://business-accounting-system-git-main-shaik-97e6.vercel.app",
     "https://business-accounting-system-pi.vercel.app",
+    "https://business-accounting-system-m20dvw59i-shaik-97e6.vercel.app",
 ]
