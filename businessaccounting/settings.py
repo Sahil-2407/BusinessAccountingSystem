@@ -190,3 +190,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://business-accounting-system-pi.vercel.app",
     "https://business-accounting-system-m20dvw59i-shaik-97e6.vercel.app",
 ]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://business-accounting-system-[a-z0-9]+-shaik-97e6\.vercel\.app$",
+]
